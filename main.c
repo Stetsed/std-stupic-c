@@ -1,11 +1,13 @@
-#include "stupid.h"
+// #include "./stupid-bindgen/bindings.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stupid-net.h>
+#include <stupid.h>
 #include <time.h>
 #include <unistd.h>
-
 #define EXIT_SUCCESS 0
 #define ENTER 10
 
@@ -34,38 +36,37 @@ void hoger_lager_spell() {
   // this will remove anything that fits over our size. So for us we want a max
   // of 0 and a minimum of 0, this means we do % (20 + 1 - 0), this means that
   // we wait until our value is smaller than 21 aka 20 or smaller.
-  int random = rand() % (9 + 1 - 0);
+  int random = rand() % (500 + 1 - 0);
 
   int chances = 4;
 
-  char buffer[10];
-
+  char buffer[64];
+  char output_buffer[64];
   while (chances > 0) {
-    stupid_write_buffer("Give input bitch: \n");
-    int amount = stupid_buffer_read(buffer, 2);
+    stupid_println("Give input bitch:");
+    int amount = stupid_buffer_read(buffer, 64);
     if (amount > 0) {
       int digit = stupid_char_int(buffer);
-      printf("%i\n", digit);
       if (digit == -1) {
-        stupid_write_buffer("Invalid");
+        stupid_println("Invalid");
       } else if (digit == random) {
-        stupid_write_buffer("YOU GOT IT");
+        stupid_println("YOU GOT IT");
+        exit(0);
       } else if (digit > random) {
-        stupid_write_buffer("Lower");
+        stupid_println("Lower");
       } else if (digit < random) {
-        stupid_write_buffer("Higher");
+        stupid_println("Higher");
       }
       chances--;
     }
   }
+  stupid_print("You did not get the answer, the answer was: ");
+  stupid_int_char(output_buffer, random);
+  stupid_print(output_buffer);
+  stupid_println("");
 }
 
 int main(int argc, char *argv[]) {
-
-  write(fileno(stdout), "Fuck off you bitch\n",
-        stupid_strlen("Fuck off you bitch\n"));
-
-  hoger_lager_spell();
-
-  return EXIT_SUCCESS;
+  uint8_t hello[] = {255, 255, 255, 255};
+  uint32_t okay = stupid_bytes_to_address(hello);
 }
