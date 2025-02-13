@@ -6,6 +6,7 @@
       "-Isrc",
       "-Isrc/standard",
       "-Isrc/net",
+      "-Isrc/school",
       "-x",
       "c",
       "-g",
@@ -60,6 +61,8 @@
       "src/standard",
       "-I",
       "src/net",
+      "-I",
+      "src/school",
       "-internal-isystem",
       "/usr/lib/clang/18/include",
       "-internal-isystem",
@@ -82,11 +85,11 @@
       "-x",
       "c",
       "-o",
-      "/tmp/main-31ecdc.o",
+      "/tmp/main-2b9dfa.o",
       "main.c"
     ],
     "directory": "/home/stetsed/Github/hhs-c-programming",
     "file": "/home/stetsed/Github/hhs-c-programming/main.c",
-    "output": "/tmp/main-31ecdc.o"
+    "output": "/tmp/main-2b9dfa.o"
   }
 ]

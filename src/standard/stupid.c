@@ -134,3 +134,8 @@ void stupid_handle_errno(int error) {
   stupid_println(errorio);
   exit(1);
 }
+
+float stupid_average(int sum, int count) {
+  float average = (float)sum / (float)(count);
+  return average;
+}
