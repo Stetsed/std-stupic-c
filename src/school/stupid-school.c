@@ -1,27 +1,27 @@
-/*
- * Copyright (c) Quinn Hooft (Stetsed)
- * SPDX-License-Identifier: MIT
- */
-
+#include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stupid.h>
-#include <time.h>
 #include <unistd.h>
 
 float calculate_belasting(int money) {
+  // 2D array that has instances of the diffrent belasting tiers, each having a
+  // minimum(where it starts), maximum(where it ends), and the percentage as
+  // defined as a factor, it will then loop over int and apply the relevant ones
+  // to int money inserted.
+  float belasting_tiers[3][3] = {
+      {0, 38441, 0.3582}, {38441, 76817, 0.3748}, {76817, FLT_MAX, 0.495}};
+  int rows = sizeof(belasting_tiers) / sizeof(belasting_tiers[0]);
   float belasting = 0;
-  if (money <= 38441) {
-    belasting += money * 0.3582;
-  } else {
-    belasting += 38441 * 0.3582;
-    if (money <= 76.817) {
-      belasting += (money - 38441) * 0.3748;
-    } else {
-      belasting += (76817 - 38441) * 0.3748;
-      belasting += (money - 76817) * 0.495;
+
+  for (int i = 0; i < rows; i++) {
+    if (money > belasting_tiers[i][1]) {
+      belasting += (belasting_tiers[i][1] - belasting_tiers[i][0]) *
+                   belasting_tiers[i][2];
+    } else if (money > belasting_tiers[i][0]) {
+      belasting += (money - belasting_tiers[i][0]) * belasting_tiers[i][2];
     }
   }
   return belasting;
@@ -29,21 +29,20 @@ float calculate_belasting(int money) {
 
 void hoger_lager_spell() {
 
-  srand(time(NULL));
-
-  // Rand returns between 0 and RAND_MAX, if we want a number between 0 and 20
-  // we need to constrain it to these numbers. We do this with the % operator,
-  // this will remove anything that fits over our size. So for us we want a max
-  // of 0 and a minimum of 0, this means we do % (20 + 1 - 0), this means that
-  // we wait until our value is smaller than 21 aka 20 or smaller.
-  int random = rand() % (500 + 1 - 0);
+  char buffer[64];
 
   int chances = 4;
+  stupid_println("Give minimum number:");
+  int minimum = stupid_buffer_read(buffer, 64);
 
-  char buffer[64];
+  stupid_println("Give maximum number:");
+  int maximum = stupid_buffer_read(buffer, 64);
+
+  int random = stupid_random(maximum, minimum);
+
   char output_buffer[64];
   while (chances > 0) {
-    stupid_println("Give input bitch:");
+    stupid_println("Give input:");
     int amount = stupid_buffer_read(buffer, 64);
     if (amount > 0) {
       int digit = stupid_char_int(buffer);
@@ -77,7 +76,7 @@ void calculate_cijfer() {
 
   char input_buffer[64];
 
-  int sum = 0;
+  float sum = 0;
   int minimum_grades = 0;
   int failed_grades = 0;
   float lowest_grade = 10;
@@ -85,8 +84,13 @@ void calculate_cijfer() {
   int cijfer_intake = grade_amount;
   while (cijfer_intake > 0) {
     stupid_println("Give your grade");
-    stupid_buffer_read((char *)input_buffer, 2);
+    stupid_buffer_read((char *)input_buffer, 60);
     float grade = atof(input_buffer);
+    while (grade == 0) {
+      stupid_println("Give your grade, because what you entered is invalid");
+      stupid_buffer_read((char *)input_buffer, 60);
+      grade = atof(input_buffer);
+    }
     // Switched to atof cuz I need floats right now, cba to implement this for
     // floats
     // int grade = stupid_char_int((char *)input_buffer);
@@ -105,45 +109,58 @@ void calculate_cijfer() {
   }
   float average = stupid_average(sum, grade_amount);
 
-  if (average < voldoende || minimum_grades > 1 || failed_grades > 0) {
+  if (average <= voldoende || minimum_grades > 1 || failed_grades > 0) {
     stupid_println("You failed, try again next year");
-    printf("Average: %0.0f\n", average);
-    printf("Lowest Grade: %0.0f\n", lowest_grade);
+    printf("Average: %0.1f\n", average);
+    printf("Lowest Grade: %0.1f\n", lowest_grade);
   } else if (average >= average_lof && lowest_grade >= lowest_lof) {
     stupid_println("You passed with lof.. CONGRATS!!!");
-    printf("Average: %0.0f\n", average);
-    printf("Lowest Grade: %0.0f\n", lowest_grade);
+    printf("Average: %0.1f\n", average);
+    printf("Lowest Grade: %0.1f\n", lowest_grade);
   } else {
     stupid_println("You passed at normal parameters");
-    printf("Average: %0.0f\n", average);
-    printf("Lowest Grade: %0.0f\n", lowest_grade);
+    printf("Average: %0.1f\n", average);
+    printf("Lowest Grade: %0.1f\n", lowest_grade);
   }
 }
 
-typedef enum throw_type {
-  OPEN = 1,
-  SPARE = 2,
-  HALF_STRIKE = 2,
-  STRIKE = 2
-} throw_type;
-
 typedef struct Player {
-  throw_type ThrowType;
+  int ThrowsAffect;
   int Points;
 } Player;
 
 void bowling_add_score(Player *player, int *scores, int throws) {
   for (int i = 0; i < throws; i++) {
-    player->Points += (scores[i] * player->ThrowType);
-    if (player->ThrowType == STRIKE) {
-      player->ThrowType = HALF_STRIKE;
-    } else {
-      player->ThrowType = OPEN;
+    player->Points += (scores[i] + (scores[i] * player->ThrowsAffect));
+    if (player->ThrowsAffect > 0) {
+      player->ThrowsAffect--;
     }
   }
 }
 
-void bowling_bullshit() {
+void bowling_special_frame(Player *player, int throws) {
+  char input_buffer[64];
+  int scores[throws];
+  int throw_score = 0;
+  for (int c = 0; c < throws; c++) {
+    stupid_println("Give your score");
+    stupid_buffer_read((char *)input_buffer, 60);
+    int thrown = stupid_char_int((char *)input_buffer);
+    scores[c] = thrown;
+    throw_score += thrown;
+  }
+
+  bowling_add_score(player, scores, throws);
+
+  if (throw_score >= 10) {
+    stupid_println("Final special frame throw");
+    stupid_buffer_read((char *)input_buffer, 60);
+    int final_throw = stupid_char_int((char *)input_buffer);
+    player->Points += final_throw;
+  }
+}
+
+void bowling_game() {
   int throws = 2;
   int rounds = 10;
   int players = 1;
@@ -153,7 +170,7 @@ void bowling_bullshit() {
 
   struct Player players_array[players];
   for (int i = 0; i < players; i++) {
-    Player player = {OPEN, 0};
+    Player player = {0, 0};
     players_array[i] = player;
   }
 
@@ -162,7 +179,7 @@ void bowling_bullshit() {
     // We are now in the loop for the amount of rounds there are in the game
     for (int b = 0; b < players; b++) {
       int knocked_pins = 0;
-      printf("Player %d is up!\n", b);
+      printf("Player %d, score %d is up!\n", b, players_array[b].Points);
       if (a != rounds) {
         // The loop for each players turn
         int scores[throws];
@@ -174,8 +191,12 @@ void bowling_bullshit() {
           scores[c] = throw_score;
           if (throw_score == 10 && c == 0) {
             stupid_println("STRIKE");
-            players_array[b].Points += 10 * players_array[b].ThrowType;
-            players_array[b].ThrowType = STRIKE;
+            players_array[b].Points +=
+                10 + (10 * players_array[b].ThrowsAffect);
+            players_array[b].ThrowsAffect += 1;
+            if (players_array[b].ThrowsAffect >= 3) {
+              players_array[b].ThrowsAffect = 2;
+            }
             strike = true;
             break;
           } else {
@@ -185,26 +206,14 @@ void bowling_bullshit() {
         if (knocked_pins == 10 && !strike) {
           bowling_add_score(&players_array[b], scores, throws);
           stupid_println("SPARE!");
-          players_array[b].ThrowType = SPARE;
+          players_array[b].ThrowsAffect += 1;
         } else if (!strike) {
           bowling_add_score(&players_array[b], scores, throws);
           stupid_println("OPEN!");
-          players_array[b].ThrowType = OPEN;
+          players_array[b].ThrowsAffect += 0;
         }
       } else {
-        int throw_score = 0;
-        for (int c = 0; c < throws; c++) {
-          stupid_println("Give your score");
-          stupid_buffer_read((char *)input_buffer, 60);
-          throw_score += stupid_char_int((char *)input_buffer);
-        }
-
-        if (throw_score == 20) {
-          stupid_println("Final special frame throw");
-          stupid_buffer_read((char *)input_buffer, 60);
-          throw_score += stupid_char_int((char *)input_buffer);
-        }
-        players_array[b].Points += throw_score;
+        bowling_special_frame(&players_array[b], throws);
       }
     }
   }

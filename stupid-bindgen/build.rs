@@ -1,6 +1,3 @@
-// Copyright (c) Quinn Hooft (Stetsed)
-// SPDX-License-Identifier: MIT
-
 extern crate cbindgen;
 
 use std::env;

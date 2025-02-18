@@ -1,16 +1,12 @@
-/*
- * Copyright (c) Quinn Hooft (Stetsed)
- * SPDX-License-Identifier: MIT
- */
-
-#include "stupid.h"
-#include <errno.h>
+// #include "stupid.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
+
 int stupid_strlen(const char *string) {
   int counter = 0;
   for (; string[counter]; counter++)
@@ -114,6 +110,19 @@ void stupid_strcpy(char *buffer, char *input) {
   buffer[i + 1] = 0;
 }
 
+int stupid_totally_safe_strcpy(char *buffer, int bufflen, char *input) {
+  int i = 0;
+  for (; input[i]; i++) {
+    if (i >= bufflen) {
+      return -1;
+    }
+    buffer[i] = input[i];
+  }
+
+  buffer[i + 1] = 0;
+  return 0;
+}
+
 void stupid_str_lowercase(char *buffer) {
   int i = 0;
   for (; buffer[i]; i++) {
@@ -140,7 +149,12 @@ void stupid_handle_errno(int error) {
   exit(1);
 }
 
-float stupid_average(int sum, int count) {
+float stupid_average(float sum, int count) {
   float average = (float)sum / (float)(count);
   return average;
+}
+
+int stupid_random(int maximum, int minimum) {
+  srand(time(NULL));
+  return (rand() % (maximum + 1 - minimum) + minimum);
 }

@@ -1,6 +1,3 @@
-// Copyright (c) Quinn Hooft (Stetsed)
-// SPDX-License-Identifier: MIT
-
 #[doc(hidden)]
 use core::ptr::slice_from_raw_parts;
 use std::ffi::CString;

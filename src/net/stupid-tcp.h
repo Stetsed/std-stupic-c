@@ -1,8 +1,3 @@
-/*
- * Copyright (c) Quinn Hooft (Stetsed)
- * SPDX-License-Identifier: MIT
- */
-
 #ifndef STD_STUPID_TCP
 #define STD_STUPID_TCP
 #pragma once
@@ -30,4 +25,31 @@ void bind_tcp_client_array(TcpClient *client, uint16_t port, uint8_t *address);
 // error happens such as as the given TcpClient has an invalid socket it will
 // return -1;
 int accept_connection(TcpClient *client, TcpConnection *connection);
+
+// Takes in a struct of type client and type connection, it then fills this
+// withis with data, if the return is 0 it means it was valid, otherwise it will
+// continue looping till one is available, if another error happens such as the
+// socket isn't valid, it will error with a return of -1, and connection should
+// be assumed to be invalid.
+int accept_connection_blocking(TcpClient *client, TcpConnection *connection);
+
+// Functio that takes in a TCP connection, a buffer and the amount of bytes to
+// be read, it will then attempt to read this, and it returns a positive integer
+// of the amount of bytes it was able to read, or a -1 with a socket failure for
+// example, or -2 if there isn't data available to read, can be avoided by
+// polling it first, but shouldn't be possible because the socketfd is blocking,
+int read_connection(TcpConnection *connection, uint8_t *buffer, uint count);
+
+// Function that takes in a TCPConnection, and a buffer of bytes that should be
+// sent over the connection, and a count of these bytes, it will loop until
+// either the entire message is sent, or an error is hit, however this should
+// only happen in cases of invalid socket, as it's blocking so shouldn't be able
+// to return a normal expected error.
+int write_connection(TcpConnection *connection, uint8_t const *buffer,
+                     uint count);
+
+// Polls a connection using it's pollfd, will either return 0 if no events where
+// gotten, or a 1 if an event was received. It can also return -1 if an error
+// was encountered.
+int poll_connection(TcpConnection *connection);
 #endif /* ifndef STD_STUPID_TCP */
