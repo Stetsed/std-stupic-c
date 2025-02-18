@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Quinn Hooft (Stetsed)
+ * SPDX-License-Identifier: MIT
+ */
+
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>

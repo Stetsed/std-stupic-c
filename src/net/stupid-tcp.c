@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Quinn Hooft (Stetsed)
+ * SPDX-License-Identifier: MIT
+ */
+
 
 #include "stupid-net.h"
 #include <errno.h>

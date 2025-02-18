@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Quinn Hooft (Stetsed)
+ * SPDX-License-Identifier: MIT
+ */
+
 #ifndef STD_STUPID_NET
 #define STD_STUPID_NET
 #pragma once
