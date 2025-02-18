@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Quinn Hooft (Stetsed)
+ * SPDX-License-Identifier: MIT
+ */
+
 #include "stupid.h"
 #include <errno.h>
 #include <stdbool.h>

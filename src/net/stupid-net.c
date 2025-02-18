@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Quinn Hooft (Stetsed)
+ * SPDX-License-Identifier: MIT
+ */
+
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
