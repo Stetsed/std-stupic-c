@@ -22,6 +22,12 @@
 #define EXPECTED_ERROR -2
 #define IGNORE_ERROR -3
 
+#ifdef DEBUG
+#define SHOW printf
+#else
+#define SHOW // macros
+#endif
+
 // Takes in a null delimited string and returns the length of the string
 // null-indexed.
 int stupid_strlen(const char *string);
@@ -42,12 +48,42 @@ int stupid_buffer_read(char *buff, int bytes);
 // Input: char[] that contains a number to be parsed, number cannot be >=
 // INT_MAX
 int stupid_char_int(char *input);
+// Input: char[] that contains a number to be parsed, number cannot be >=
+// INT_MAX, compared to stupid_char_int it will return -1 if not a valid number
+// instead of 0
+int stupid_char_int_error(char *input);
 // Buffer: char[] that has a size of digits + 2
 // Input: Int that is converted to a string
 void stupid_int_char(char *buffer, int input);
+// Compares 2 strings, returns EXPECTED_ERROR if they don't, otherwise returns 0
+int stupid_strcmp(char *string, char *string2);
+// Compares 2 strings, returns EXPECTED_ERROR if they don't, otherwise returns
+// 0. Accepts another argument which is a string for the charachters to ignore
+// inside of the string.
+int stupid_strcmp_ignorec(char *string, char *string2, char *chartoign);
 
-// Function takes in a value from ERRNO, and returns the error printed out, and
-// exits the program.
+// Function takes in a value from ERRNO, and returns the error printed out,
+// and exits the program.
 void stupid_handle_errno(int error);
+
+// Function that takes in a maximum and a minimum, and returns a random number
+// between these 2 using system RAND.
+int stupid_random(int maximum, int minimum);
+
+// Function that takes in 2 arrays, and copies one to the other.
+void stupid_strcpy(char *buffer, char *input);
+
+// Function that takes in 2 arrays, and copies 1 from the other up to a specific
+// amount of charachters.
+void stupid_strncpy(char *buffer, char *input, int amount);
+
+// Takes in the sum of a set of values, and the amount of values summed, and
+// calculates the average of these functions
+float stupid_average(float sum, int count);
+
+// Takes in 2 strings, the first is the string itself, and the second is a
+// substring that will be looked for inside of string. If it's found it will
+// return the index where the sub-string starts.
+int stupid_find_substring(char *string, char *substring);
 
 #endif /* ifndef STD_STUPID_STANDARD */

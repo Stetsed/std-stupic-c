@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stupid.h>
 #include <unistd.h>
 
@@ -16,9 +17,9 @@ float calculate_belasting(int money) {
   // minimum(where it starts), maximum(where it ends), and the percentage as
   // defined as a factor, it will then loop over int and apply the relevant ones
   // to int money inserted.
-  float belasting_tiers[3][3] = {
+  const int rows = 3;
+  float belasting_tiers[rows][3] = {
       {0, 38441, 0.3582}, {38441, 76817, 0.3748}, {76817, FLT_MAX, 0.495}};
-  int rows = sizeof(belasting_tiers) / sizeof(belasting_tiers[0]);
   float belasting = 0;
 
   for (int i = 0; i < rows; i++) {
@@ -227,4 +228,160 @@ void bowling_game() {
   for (int i = 0; i < players; i++) {
     printf("Player %d, has a score of %d'\n", i, players_array[i].Points);
   }
+}
+
+void stupid_user_reading() {
+  bool valid = false;
+  int buff_size = 128;
+  char buffer[buff_size];
+  char output[buff_size];
+  char output2[buff_size];
+
+  while (!valid) {
+    stupid_println("Enter your data in the format \"Key : Value\"");
+    stupid_buffer_read((char *)buffer, 127);
+    stupid_str_lowercase(buffer);
+    int seperator_location = stupid_find_substring(buffer, ":");
+
+    switch (buffer[0]) {
+    case '"':
+    case 'b':
+      // To add fuel you just add them to the array, and make sure the length of
+      // there name is not > than the second array size designator
+      char valid_fuels[4][16] = {"benzine", "lpg", "diesel", "kerosine"};
+      bool matched = false;
+
+      for (int i = 0; i < sizeof(valid_fuels) / sizeof(valid_fuels[0]); i++) {
+
+        int compare = stupid_strcmp_ignorec(buffer + seperator_location,
+                                            valid_fuels[i], ": \"\n");
+        if (compare == 0) {
+          matched = true;
+          printf("Brandstof being used is %s\n", valid_fuels[i]);
+          valid = true;
+          break;
+        }
+      }
+      break;
+
+    default:
+      int temp_int = stupid_char_int_error(buffer + seperator_location);
+      if (temp_int == -1) {
+        stupid_println("Invalid value, retry");
+
+      } else {
+        stupid_strncpy(output, buffer, seperator_location - 1);
+        printf("Value for \nKey: %s \n Value: %d\n", output, temp_int);
+        valid = true;
+      }
+      break;
+    };
+  };
+}
+
+typedef enum state { Thuis, Uit } state;
+typedef struct match {
+  state status;
+  int self_score;
+  int opponent_score;
+  char opponent[32];
+} match;
+
+typedef struct wedstrijd {
+  int wedstrijden;
+  int punten;
+  int zelf_doelsaldo;
+  int opponent_doelsaldo;
+} wedstrijd;
+
+void voetbal_score_inlezen() {
+  char buffer[2048];
+  char second_buffer[256];
+  struct match matches[64] = {0};
+  char *buffer_pointer = buffer;
+  int match_counter = 0;
+  FILE *fp = fopen("./voetbal.txt", "r");
+  while (1) {
+    char *fget_return = fgets(buffer, 2047, fp);
+    stupid_str_lowercase(buffer);
+    int minus_location = stupid_find_substring(buffer_pointer, "-");
+    if (fget_return == NULL) {
+      break;
+    }
+    switch (buffer_pointer[0]) {
+    case 't':
+      matches[match_counter].status = Thuis;
+      // Getting the int after the "Thuis", which is score for own party.
+      matches[match_counter].self_score =
+          stupid_char_int(buffer + minus_location - 2);
+      // Getting int after the : which is the score for the other party
+      matches[match_counter].opponent_score =
+          stupid_char_int(buffer + minus_location + 2);
+      // Getting opponent name
+      stupid_strcpy(matches[match_counter].opponent,
+                    buffer + minus_location + 4);
+      matches[match_counter]
+          .opponent[stupid_strlen(matches[match_counter].opponent) - 1] = 0;
+      printf("Status: %s \nOponnent: %s %d \nSelf: %d \n", "Thuis",
+             matches[match_counter].opponent,
+             matches[match_counter].opponent_score,
+             matches[match_counter].self_score);
+
+      match_counter++;
+      break;
+
+    case 'u':
+      matches[match_counter].status = Uit;
+
+      // Getting the int after the "Uit", which is score for other party.
+      matches[match_counter].opponent_score =
+          stupid_char_int(buffer + minus_location - 2);
+      // Getting int after the : which is the score for the self party
+      matches[match_counter].self_score =
+          stupid_char_int(buffer + minus_location + 2);
+      // Getting opponent name
+      stupid_strcpy(matches[match_counter].opponent,
+                    buffer + minus_location + 4);
+      matches[match_counter]
+          .opponent[stupid_strlen(matches[match_counter].opponent) - 1] = 0;
+      printf("Status: %s \nOponnent: %s %d \nSelf: %d \n", "Uit",
+             matches[match_counter].opponent,
+             matches[match_counter].opponent_score,
+             matches[match_counter].self_score);
+      match_counter++;
+      break;
+    }
+    stupid_println("------------");
+  }
+
+  struct wedstrijd wedstrijd_object = {0, 0, 0, 0};
+  for (int i = 0; matches[i].opponent[0] != 0; i++) {
+    wedstrijd_object.wedstrijden++;
+    wedstrijd_object.zelf_doelsaldo += matches[i].self_score;
+    wedstrijd_object.opponent_doelsaldo += matches[i].opponent_score;
+  }
+  wedstrijd_object.punten +=
+      wedstrijd_object.zelf_doelsaldo + wedstrijd_object.opponent_doelsaldo;
+  printf("Wedstrijden %d, %d punten, doelsaldo (%d - %d)\n",
+         wedstrijd_object.wedstrijden, wedstrijd_object.punten,
+         wedstrijd_object.zelf_doelsaldo, wedstrijd_object.opponent_doelsaldo);
+
+  stupid_println("What party do you want to check?");
+  stupid_buffer_read(buffer, 32);
+  for (int i = 0; i < wedstrijd_object.wedstrijden; i++) {
+    int compare = stupid_strcmp_ignorec(buffer, matches[i].opponent, " \":,\n");
+    if (compare == 0) {
+      if (matches[i].self_score > matches[i].opponent_score) {
+        printf("Won against!");
+        exit(0);
+      } else if (matches[i].self_score < matches[i].opponent_score) {
+        printf("Lost against!");
+        exit(0);
+      } else if (matches[i].self_score == matches[i].opponent_score) {
+        printf("Even against!");
+        exit(0);
+      }
+    }
+  }
+  stupid_println("Party was not played against sadly :(, maybe next season");
 }

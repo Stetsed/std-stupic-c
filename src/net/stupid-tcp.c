@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-
-#include "stupid-net.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
@@ -24,11 +22,18 @@ typedef enum SocketStatus {
 
 } SocketStatus;
 
-typedef struct TcpClient {
+typedef enum ClientType {
+  Client,
+  Server,
+  Unitialized,
+} ClientType;
+
+typedef struct TcpInstance {
   int socketfd;
   struct pollfd poll_descriptor;
   SocketStatus Status;
-} TcpClient;
+  ClientType type;
+} TcpInstance;
 
 typedef struct TcpConnection {
   int socketfd;
@@ -37,7 +42,7 @@ typedef struct TcpConnection {
   socklen_t ClientLength;
 } TcpConnection;
 
-TcpClient setup_tcp_client() {
+TcpInstance setup_tcp_instance() {
   // Initialize a socket on IPv4, using TCP, and manual protocol selection, and
   // if blocking is false it also sets the socket to be non-blocking
   int socketfd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
@@ -46,15 +51,16 @@ TcpClient setup_tcp_client() {
     stupid_handle_errno(errno);
   }
   struct pollfd poll_descriptor = {socketfd, POLLIN};
-  TcpClient TcpClient = {.socketfd = socketfd,
-                         .poll_descriptor = poll_descriptor,
-                         .Status = SocketInactive};
-  return TcpClient;
+  TcpInstance instance = {.socketfd = socketfd,
+                          .poll_descriptor = poll_descriptor,
+                          .Status = SocketInactive,
+                          .type = Unitialized};
+  return instance;
 }
 
-void bind_tcp_client(TcpClient *client, uint16_t port, uint32_t address) {
+void bind_tcp_serv(TcpInstance *client, uint16_t port, uint32_t address) {
   struct sockaddr_in address_info;
-  address_info.sin_addr.s_addr = htonl(address);
+  address_info.sin_addr.s_addr = address;
   address_info.sin_port = htons(port);
   address_info.sin_family = AF_INET;
   if (bind(client->socketfd, (struct sockaddr *)&address_info,
@@ -65,30 +71,49 @@ void bind_tcp_client(TcpClient *client, uint16_t port, uint32_t address) {
     stupid_handle_errno(errno);
   }
   client->Status = SocketActive;
+  client->type = Server;
+  SHOW("Server was bound to port %d on %d\n", port, address);
 }
 
-void bind_tcp_client_array(TcpClient *client, uint16_t port,
-                           uint8_t *address_array) {
-  uint32_t address = stupid_bytes_to_address(address_array);
+void bind_tcp_client(TcpInstance *client) {
   struct sockaddr_in address_info;
-  address_info.sin_addr.s_addr = htonl(address);
-  address_info.sin_port = htons(port);
+  address_info.sin_addr.s_addr = 0;
+  address_info.sin_port = 0;
   address_info.sin_family = AF_INET;
   if (bind(client->socketfd, (struct sockaddr *)&address_info,
            sizeof(address_info)) < 0) {
     stupid_handle_errno(errno);
   };
-  if (listen(client->socketfd, 16)) {
-    stupid_handle_errno(errno);
-  }
   client->Status = SocketActive;
+  client->type = Client;
 }
-// Takes in a struct of type client and type connection, it then fills this with
-// data, if the return is 0 this should be a valid socket file descriptor, if
-// it's -2 an error that is due to no connection being available. If another
-// error happens such as as the given TcpClient has an invalid socket it will
-// return -1;
-int accept_connection(TcpClient *client, TcpConnection *connection) {
+
+int connect_tcp_client(TcpInstance *client, TcpConnection *connection,
+                       uint16_t port, uint32_t address) {
+  struct sockaddr_in addr;
+  addr.sin_addr.s_addr = address;
+  addr.sin_port = htons(port);
+  addr.sin_family = AF_INET;
+
+  while (1) {
+    if (connect(client->socketfd, (struct sockaddr *)&addr, sizeof(addr))) {
+      if (errno != EINPROGRESS) {
+        stupid_handle_errno(errno);
+      }
+    } else {
+      break;
+    };
+  };
+
+  connection->ClientInformation = addr;
+  connection->ClientLength = sizeof(addr);
+  connection->socketfd = client->socketfd;
+
+  SHOW("Client connected to port %d on %d \n", port, address);
+  return NO_ERROR;
+}
+
+int accept_connection(TcpInstance *client, TcpConnection *connection) {
   struct sockaddr_in addr;
   socklen_t len;
   int socketfd;
@@ -106,7 +131,7 @@ int accept_connection(TcpClient *client, TcpConnection *connection) {
   return NO_ERROR;
 }
 
-int accept_connection_blocking(TcpClient *client, TcpConnection *connection) {
+int accept_connection_blocking(TcpInstance *client, TcpConnection *connection) {
   struct sockaddr_in addr;
   socklen_t len;
   int socketfd;
@@ -154,4 +179,8 @@ int poll_connection(TcpConnection *connection) {
   int polling = poll(&connection->poll_descriptor, 1, 10);
 
   return polling;
+}
+
+void close_connection(TcpConnection *connection) {
+  close(connection->socketfd);
 }

@@ -14,29 +14,36 @@
 // creation of the socket which is of type IPv4 and TCP fails, this can also
 // happen if the OS is an older linux version and doesn't support non-block
 // sock.
-TcpClient setup_tcp_client();
+TcpInstance setup_tcp_instance();
 
-// Binds the TCP-Client to the given port and address, will exit if error case
+// Binds the TCPInstance to the given port and address, will exit if error case
 // is hit, such as if the address is already in use, or it doesn't exist. The
-// address is in the form of it's binary representation, use
-// bind_tcp_client_array if you wish to use an array of bytes for the address,
-// which does the same function but using an array of 4 bytes.
-void bind_tcp_client(TcpClient *client, uint16_t port, uint32_t address);
-void bind_tcp_client_array(TcpClient *client, uint16_t port, uint8_t *address);
+// address is in the form of it's binary representation.
+void bind_tcp_serv(TcpInstance *client, uint16_t port, uint32_t address);
 
-// Takes in a struct of type client and type connection, it then fills this with
-// data, if the return is 0 this should be a valid socket file descriptor, if
-// it's -2 an error that is due to no connection being available. If another
-// error happens such as as the given TcpClient has an invalid socket it will
-// return -1;
-int accept_connection(TcpClient *client, TcpConnection *connection);
+// Ment to be used for TCP Clients which make outbound connection, will bind to
+// all addresses locally and a random OS designated port, this should be used if
+// you plan to make outbound connections according to spec.
+void bind_tcp_client(TcpInstance *client);
+
+// Takes in a TcpInstance and connects to a remote host on the given address and
+// port. This will use the Instance's socketfd to use in the connection socketfd
+// due to client fd's being 1:1 instead of 1:*.
+int connect_tcp_client(TcpInstance *client, TcpConnection *connection,
+                       uint16_t port, uint32_t address);
+// Takes in a struct of type client and type connection, it then fills this
+// with data, if the return is 0 this should be a valid socket file
+// descriptor, if it's -2 an error that is due to no connection being
+// available. If another error happens such as as the given TcpClient has an
+// invalid socket it will return -1;
+int accept_connection(TcpInstance *client, TcpConnection *connection);
 
 // Takes in a struct of type client and type connection, it then fills this
 // withis with data, if the return is 0 it means it was valid, otherwise it will
 // continue looping till one is available, if another error happens such as the
 // socket isn't valid, it will error with a return of -1, and connection should
 // be assumed to be invalid.
-int accept_connection_blocking(TcpClient *client, TcpConnection *connection);
+int accept_connection_blocking(TcpInstance *client, TcpConnection *connection);
 
 // Functio that takes in a TCP connection, a buffer and the amount of bytes to
 // be read, it will then attempt to read this, and it returns a positive integer
@@ -57,4 +64,9 @@ int write_connection(TcpConnection *connection, uint8_t const *buffer,
 // gotten, or a 1 if an event was received. It can also return -1 if an error
 // was encountered.
 int poll_connection(TcpConnection *connection);
+
+// Function that takes in a connection and closes it's socketfd, after this
+// function is ran it should be assumed that the socketfd is no longer usable to
+// send or receive data.
+void close_connection(TcpConnection *connection);
 #endif /* ifndef STD_STUPID_TCP */

@@ -18,5 +18,5 @@ uint32_t stupid_bytes_to_address(uint8_t *byte_array) {
   address |= byte_array[1] << 16;
   address |= byte_array[2] << 8;
   address |= byte_array[3];
-  return address;
+  return htonl(address);
 }

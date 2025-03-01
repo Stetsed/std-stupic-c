@@ -3,25 +3,29 @@
  * SPDX-License-Identifier: MIT
  */
 
-// #include "./stupid-bindgen/bindings.h"
+#define DEBUG
 
-#include "stupid-school.h"
+#include "stupid-net.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stupid-school.h>
 #include <stupid-tcp.h>
 #include <stupid.h>
 #include <unistd.h>
 #define EXIT_SUCCESS 0
 #define ENTER 10
-
 int main(int argc, char *argv[]) {
-  TcpClient client = setup_tcp_client();
-  char hello[] = "It works you dum cunt";
-  bind_tcp_client(&client, 8080, 0);
-  TcpConnection connection;
-  accept_connection_blocking(&client, &connection);
-  write_connection(&connection, (uint8_t *)hello, 22);
 
-  exit(0);
+  TcpInstance instance = setup_tcp_instance();
+
+  TcpConnection connection;
+  uint16_t port = 9283;
+  uint8_t addr[4] = {127, 0, 0, 1};
+  uint32_t address = stupid_bytes_to_address(addr);
+  bind_tcp_client(&instance);
+  connect_tcp_client(&instance, &connection, port, address);
+  char message[] = "Hello how you do bitch\n";
+  write_connection(&connection, message, sizeof(message));
+  close_connection(&connection);
 }
