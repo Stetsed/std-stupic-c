@@ -254,7 +254,6 @@ float stupid_average(float sum, int count) {
 }
 
 int stupid_random(int maximum, int minimum) {
-  srand(time(NULL));
   return (rand() % (maximum + 1 - minimum) + minimum);
 }
 

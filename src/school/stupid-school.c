@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stupid.h>
+#include <threads.h>
 #include <unistd.h>
 
 float calculate_belasting(int money) {
@@ -230,7 +231,7 @@ void bowling_game() {
   }
 }
 
-void stupid_user_reading() {
+void user_reading() {
   bool valid = false;
   int buff_size = 128;
   char buffer[buff_size];
@@ -384,4 +385,194 @@ void voetbal_score_inlezen() {
     }
   }
   stupid_println("Party was not played against sadly :(, maybe next season");
+}
+
+void stupid_float_printing(float *array, int size) {
+  printf("[ ");
+  for (int i = 0; i < size; i++) {
+    if (i != 0) {
+      printf(",%.2f", array[i]);
+    } else {
+      printf("%.2f", array[i]);
+    }
+  }
+  printf(" ]");
+}
+void gen_array_random_bs(int min, int max, int *int_array, int size) {
+  for (int i = 0; i < size; i++) {
+    int_array[i] = stupid_random(max, min);
+  }
+}
+
+void random_array_bs() {
+  srand(time(NULL));
+  char buffer[64] = {0};
+
+  stupid_println("Give Maximum");
+  stupid_buffer_read(buffer, 32);
+  int maximum = stupid_char_int(buffer);
+
+  stupid_println("Give Minimum");
+  stupid_buffer_read(buffer, 32);
+  int minimum = stupid_char_int(buffer);
+
+  stupid_println("How large do you want the arrays to be?");
+  stupid_buffer_read(buffer, 32);
+  int size = stupid_char_int(buffer);
+  int *int_array = (int *)malloc(size * 4);
+  int *int_array_2 = (int *)malloc(size * 4);
+  gen_array_random_bs(minimum, maximum, int_array, size);
+  gen_array_random_bs(minimum, maximum, int_array_2, size);
+
+  printf("Index ");
+  for (int i = 0; i < size; i++) {
+    printf("%d ", i);
+  }
+  printf("\n");
+
+  printf("Array1 ");
+  for (int i = 0; i < size; i++) {
+    printf("%d ", int_array[i]);
+  }
+  printf("\n");
+
+  printf("Array2 ");
+  for (int i = 0; i < size; i++) {
+    printf("%d ", int_array_2[i]);
+  }
+  printf("\n");
+
+  printf("Resultaat ");
+  for (int i = 0; i < size; i++) {
+    if (int_array[i] > int_array_2[i]) {
+      printf("%d ", int_array[i]);
+    } else {
+      printf("%d ", int_array_2[i]);
+    }
+  }
+  printf("\n");
+  free(int_array);
+  free(int_array_2);
+}
+
+typedef struct vak {
+  char naam[20];
+  int ECTS;
+} vak;
+
+void change_vak(vak *vakken, int amount) {
+  char buffer[64];
+  int name_size = sizeof(vakken[0].naam);
+
+  stupid_println("Welke vak will je veranderen?(Index)");
+  stupid_buffer_read(buffer, 32);
+
+  int index = stupid_char_int(buffer);
+  if (index < 0 || index > amount - 1) {
+    stupid_println("Out of bounds");
+    exit(1);
+  }
+  printf("Current values: %s %d\n", vakken[index].naam, vakken[index].ECTS);
+  stupid_println("Nieuwe Naam");
+  stupid_buffer_read(buffer, 32);
+
+  stupid_strncpy(vakken[index].naam, buffer, name_size - 3);
+
+  stupid_println("Nieuwe ECTS Punten");
+  stupid_buffer_read(buffer, 32);
+  int punten = stupid_char_int(buffer);
+  vakken[index].ECTS = punten;
+}
+
+void change_vak_chosen(vak *vakk) {
+  vak vaki = vakk[0];
+  char buffer[64];
+  int name_size = sizeof(vaki.naam);
+  printf("Current values: %s %d\n", vaki.naam, vaki.ECTS);
+  stupid_println("Nieuwe Naam");
+  stupid_buffer_read(buffer, 32);
+
+  stupid_strncpy(vaki.naam, buffer, name_size - 3);
+
+  stupid_println("Nieuwe ECTS Punten");
+  stupid_buffer_read(buffer, 32);
+  int punten = stupid_char_int(buffer);
+  vaki.ECTS = punten;
+}
+
+void random_vakken_dingen() {
+
+  vak vakken[5] = {
+      {"Ok", 10}, {"Okok", 20}, {"Okokok", 20}, {"Bruh", 69}, {"Brah", 420}};
+
+  for (int i = 0; i < (sizeof(vakken) / sizeof(vak)); i++) {
+    printf("Name: %s\n Digits: %d\n\n", vakken[i].naam, vakken[i].ECTS);
+  }
+  change_vak(vakken, (sizeof(vakken) / sizeof(vak)));
+  for (int i = 0; i < (sizeof(vakken) / sizeof(vak)); i++) {
+    printf("Name: %s\n Digits: %d\n\n", vakken[i].naam, vakken[i].ECTS);
+  }
+}
+
+typedef struct teamlid {
+  int id;
+  char naam[20];
+  char opleiding[20];
+} teamlid;
+
+void naam_generator(char *holder) {
+  int random = stupid_random(8, 0);
+  char namen[10][20] = {"John",  "Bob",    "Alice", "Claire", "Duco",
+                        "Oscar", "Robert", "Quinn", "Erynn",  "Quinten"};
+  stupid_strcpy(holder, namen[random]);
+}
+
+void opleiding_generator(char *holder) {
+  int random = stupid_random(4, 0);
+  char opleidingen[6][20] = {"VMBO", "MBO", "HBO", "WO", "PhD", "MD"};
+  stupid_strcpy(holder, opleidingen[random]);
+}
+
+void opleidingen_zoek(teamlid *leden, char *opleiding_zoek, int count) {
+  bool match_found = false;
+
+  for (int i = 0; i < count; i++) {
+    int match =
+        stupid_strcmp_ignorec(leden[i].opleiding, opleiding_zoek, ": \"\n");
+    if (match == 0) {
+      printf("ID: %d\nNaam: %s\nOpleiding: %s\n", leden[i].id, leden[i].naam,
+             leden[i].opleiding);
+      match_found = true;
+    }
+  }
+  if (!match_found) {
+    stupid_println(
+        "Niemand heeft deze opleiding of deze opleiding is niet geldig.");
+  }
+}
+
+int teamlid_generate_id() {
+  static int id_count = 1000;
+  int current_id = id_count;
+  id_count++;
+  return current_id;
+}
+
+void random_teamlid_thingie() {
+  srand(time(NULL));
+  char buffer[64] = {0};
+  stupid_println("Hoeveel teamleden will je?");
+  stupid_buffer_read(buffer, 32);
+  int count = stupid_char_int(buffer);
+
+  teamlid *leden = (teamlid *)malloc(count * sizeof(teamlid));
+
+  for (int i = 0; i < count; i++) {
+    leden[i].id = teamlid_generate_id();
+    naam_generator(leden[i].naam);
+    opleiding_generator(leden[i].opleiding);
+  }
+  stupid_println("Welke opleiding will je naar zoeken?");
+  stupid_buffer_read(buffer, 32);
+  opleidingen_zoek(leden, buffer, count);
 }

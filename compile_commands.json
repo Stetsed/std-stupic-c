@@ -84,11 +84,11 @@
       "-x",
       "c",
       "-o",
-      "/tmp/main-029b21.o",
+      "/tmp/main-20c119.o",
       "main.c"
     ],
     "directory": "/home/stetsed/Github/std-stupid-c",
     "file": "/home/stetsed/Github/std-stupid-c/main.c",
-    "output": "/tmp/main-029b21.o"
+    "output": "/tmp/main-20c119.o"
   }
 ]
