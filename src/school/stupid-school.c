@@ -3,13 +3,20 @@
  * SPDX-License-Identifier: MIT
  */
 
+// Header
+#include <stupid-school.h>
+//
+
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stupid-net.h>
+#include <stupid-tcp.h>
 #include <stupid.h>
+#include <sys/poll.h>
 #include <threads.h>
 #include <unistd.h>
 
@@ -575,4 +582,95 @@ void random_teamlid_thingie() {
   stupid_println("Welke opleiding will je naar zoeken?");
   stupid_buffer_read(buffer, 32);
   opleidingen_zoek(leden, buffer, count);
+}
+
+void client_program() {
+  uint8_t buffer[512] = {0};
+  struct pollfd terminal_poll = {
+      STDIN_FILENO,
+      POLLIN,
+  };
+  TcpInstance client = setup_tcp_instance();
+  bind_tcp_client(&client);
+  TcpConnection connection;
+  uint8_t addr[4] = {127, 0, 0, 1};
+  uint32_t address = stupid_bytes_to_address(addr);
+  connect_tcp_client(&client, &connection, 9999, address);
+  while (1) {
+    if (poll(&connection.poll_descriptor, 1, 1)) {
+      int bytes = read(connection.socketfd, buffer, sizeof(buffer) - 1);
+      if (bytes > 0) {
+        buffer[bytes] = 0;
+        printf("%s", buffer);
+      }
+    }
+    if (poll(&terminal_poll, 1, 1)) {
+      int bytes = read(STDIN_FILENO, buffer, sizeof(buffer));
+      if (bytes > 0) {
+        write(connection.socketfd, buffer, bytes);
+      }
+    }
+  }
+}
+
+void server_program() {
+  uint8_t buffer[1024] = {0};
+
+  TcpInstance instance = setup_tcp_instance();
+
+  uint16_t port = 9999;
+  uint8_t addr[4] = {127, 0, 0, 1};
+  uint32_t address = stupid_bytes_to_address(addr);
+  bind_tcp_serv(&instance, port, address);
+
+  uint16_t connections = 0;
+
+  uint16_t max_connections = 16;
+  TcpConnection *connection_list[16] = {0};
+  while (1) {
+    printf("Passed loop, connections: %d\n", connections);
+    if (poll(&instance.poll_descriptor, 1, 1)) {
+      TcpConnection *new_connection = malloc(sizeof(TcpConnection));
+      int connection_result = accept_connection(&instance, new_connection);
+
+      bool hit = false;
+      if (connection_result == NO_ERROR) {
+        for (int i = 0; i < max_connections; i++) {
+          if (connection_list[i] == 0) {
+            connection_list[i] = new_connection;
+            hit = true;
+            connections++;
+            break;
+          }
+        }
+        if (!hit) {
+          free(new_connection);
+        }
+      } else {
+        free(new_connection);
+      }
+    }
+
+    for (int i = 0; i < max_connections; i++) {
+      if (!connection_list[i]) {
+        continue;
+      }
+      if (connection_list[i]->Status == SocketError ||
+          connection_list[i]->Status == SocketInactive ||
+          poll(&connection_list[i]->poll_descriptor_r, 1, 1)) {
+        free(connection_list[i]);
+        connection_list[i] = 0;
+        connections--;
+        continue;
+      }
+      int poll_result = poll_connection(connection_list[i]);
+      if (poll_result == 1) {
+        int read_result =
+            read_connection(connection_list[i], buffer, sizeof(buffer));
+        if (read_result > 0) {
+          write_connection(connection_list[i], buffer, read_result);
+        }
+      }
+    }
+  }
 }

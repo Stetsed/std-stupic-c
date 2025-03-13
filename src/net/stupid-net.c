@@ -3,11 +3,15 @@
  * SPDX-License-Identifier: MIT
  */
 
+// Header
+#include <stupid-net.h>
+//
+
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <stdbool.h>
-#include <stdint.h>
+#include <stupid-net.h>
 #include <stupid.h>
 #include <sys/socket.h>
 #include <sys/types.h>

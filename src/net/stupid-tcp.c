@@ -4,43 +4,9 @@
  */
 
 #include <errno.h>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <poll.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stupid.h>
+#include <stupid-tcp.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-typedef enum SocketStatus {
-  SocketInactive,
-  SocketActive,
-  SocketError,
-
-} SocketStatus;
-
-typedef enum ClientType {
-  Client,
-  Server,
-  Unitialized,
-} ClientType;
-
-typedef struct TcpInstance {
-  int socketfd;
-  struct pollfd poll_descriptor;
-  SocketStatus Status;
-  ClientType type;
-} TcpInstance;
-
-typedef struct TcpConnection {
-  int socketfd;
-  struct sockaddr_in ClientInformation;
-  struct pollfd poll_descriptor;
-  socklen_t ClientLength;
-} TcpConnection;
 
 TcpInstance setup_tcp_instance() {
   // Initialize a socket on IPv4, using TCP, and manual protocol selection, and
@@ -50,6 +16,9 @@ TcpInstance setup_tcp_instance() {
   if (socketfd < 0) {
     stupid_handle_errno(errno);
   }
+  int fucking_one = 1;
+  setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &fucking_one,
+             sizeof(fucking_one));
   struct pollfd poll_descriptor = {socketfd, POLLIN};
   TcpInstance instance = {.socketfd = socketfd,
                           .poll_descriptor = poll_descriptor,
@@ -113,12 +82,12 @@ int connect_tcp_client(TcpInstance *client, TcpConnection *connection,
   return NO_ERROR;
 }
 
-int accept_connection(TcpInstance *client, TcpConnection *connection) {
+int accept_connection(TcpInstance *instance, TcpConnection *connection) {
   struct sockaddr_in addr;
   socklen_t len;
   int socketfd;
-  socketfd = accept(client->socketfd, (struct sockaddr *)&addr, &len);
-  if (socket < 0) {
+  socketfd = accept(instance->socketfd, (struct sockaddr *)&addr, &len);
+  if (socketfd < 0) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return EXPECTED_ERROR;
     } else {
@@ -128,15 +97,21 @@ int accept_connection(TcpInstance *client, TcpConnection *connection) {
   connection->ClientInformation = addr;
   connection->ClientLength = len;
   connection->socketfd = socketfd;
+  struct pollfd poll_descriptor = {socketfd, POLLIN};
+  connection->poll_descriptor = poll_descriptor;
+  struct pollfd poll_descriptor_r = {socketfd, .revents = POLLHUP};
+  connection->poll_descriptor_r = poll_descriptor_r;
+  connection->Status = SocketActive;
   return NO_ERROR;
 }
 
-int accept_connection_blocking(TcpInstance *client, TcpConnection *connection) {
+int accept_connection_blocking(TcpInstance *instance,
+                               TcpConnection *connection) {
   struct sockaddr_in addr;
   socklen_t len;
   int socketfd;
-  if (poll(&client->poll_descriptor, 1, -1) == 1) {
-    socketfd = accept(client->socketfd, (struct sockaddr *)&addr, &len);
+  if (poll(&instance->poll_descriptor, 1, -1) == 1) {
+    socketfd = accept(instance->socketfd, (struct sockaddr *)&addr, &len);
   } else {
     return CATASTROPHIC_ERROR;
   }
@@ -145,10 +120,18 @@ int accept_connection_blocking(TcpInstance *client, TcpConnection *connection) {
   connection->ClientLength = len;
   struct pollfd poll_descriptor = {socketfd, POLLIN};
   connection->poll_descriptor = poll_descriptor;
+  struct pollfd poll_descriptor_r = {socketfd, .revents = POLLHUP};
+  connection->poll_descriptor_r = poll_descriptor_r;
+  connection->Status = SocketActive;
   return NO_ERROR;
 }
 
 int read_connection(TcpConnection *connection, uint8_t *buffer, uint count) {
+  if (connection->Status == SocketError ||
+      connection->Status == SocketInactive) {
+    return CATASTROPHIC_ERROR;
+  }
+
   int status = read(connection->socketfd, buffer, count);
 
   if (status < 0) {
@@ -157,13 +140,22 @@ int read_connection(TcpConnection *connection, uint8_t *buffer, uint count) {
       return EXPECTED_ERROR;
     } else {
       return CATASTROPHIC_ERROR;
+      connection->Status = SocketError;
     }
+  }
+  if (status == 0) {
+    connection->Status = SocketInactive;
   }
   return status;
 }
 
 int write_connection(TcpConnection *connection, uint8_t const *buffer,
                      uint count) {
+  if (connection->Status == SocketError ||
+      connection->Status == SocketInactive) {
+    return CATASTROPHIC_ERROR;
+  }
+
   while (count > 0) {
     int bytes_status = write(connection->socketfd, buffer, count);
     if (bytes_status < 0) {
@@ -176,6 +168,10 @@ int write_connection(TcpConnection *connection, uint8_t const *buffer,
 }
 
 int poll_connection(TcpConnection *connection) {
+  if (connection->Status == SocketError ||
+      connection->Status == SocketInactive) {
+    return CATASTROPHIC_ERROR;
+  }
   int polling = poll(&connection->poll_descriptor, 1, 10);
 
   return polling;

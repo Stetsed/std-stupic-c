@@ -7,7 +7,46 @@
 #define STD_STUPID_TCP
 #pragma once
 
-#include "stupid-tcp.c"
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <poll.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stupid.h>
+#include <sys/poll.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+typedef enum SocketStatus {
+  SocketInactive,
+  SocketActive,
+  SocketError,
+
+} SocketStatus;
+
+typedef enum ClientType {
+  Client,
+  Server,
+  Unitialized,
+} ClientType;
+
+typedef struct TcpInstance {
+  int socketfd;
+  struct pollfd poll_descriptor;
+  SocketStatus Status;
+  ClientType type;
+} TcpInstance;
+
+typedef struct TcpConnection {
+  int socketfd;
+  struct sockaddr_in ClientInformation;
+  struct pollfd poll_descriptor;
+  struct pollfd poll_descriptor_r;
+  socklen_t ClientLength;
+  SocketStatus Status;
+} TcpConnection;
 
 // Returns an instance of type TcpClient, which holds the Status of the socket
 // and the socket file descriptor it has. It can error and will exit if the
@@ -36,14 +75,15 @@ int connect_tcp_client(TcpInstance *client, TcpConnection *connection,
 // descriptor, if it's -2 an error that is due to no connection being
 // available. If another error happens such as as the given TcpClient has an
 // invalid socket it will return -1;
-int accept_connection(TcpInstance *client, TcpConnection *connection);
+int accept_connection(TcpInstance *instance, TcpConnection *connection);
 
 // Takes in a struct of type client and type connection, it then fills this
 // withis with data, if the return is 0 it means it was valid, otherwise it will
 // continue looping till one is available, if another error happens such as the
 // socket isn't valid, it will error with a return of -1, and connection should
 // be assumed to be invalid.
-int accept_connection_blocking(TcpInstance *client, TcpConnection *connection);
+int accept_connection_blocking(TcpInstance *instance,
+                               TcpConnection *connection);
 
 // Functio that takes in a TCP connection, a buffer and the amount of bytes to
 // be read, it will then attempt to read this, and it returns a positive integer

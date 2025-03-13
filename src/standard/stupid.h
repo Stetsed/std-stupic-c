@@ -7,7 +7,6 @@
 #define STD_STUPID_STANDARD
 #pragma once
 
-#include "stupid.c"
 #include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>

@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-// #include "stupid.h"
+// Header
+#include <stupid.h>
+//
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>

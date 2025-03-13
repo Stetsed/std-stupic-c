@@ -7,7 +7,8 @@
 #define STD_STUPID_NET
 #pragma once
 
-#include "stupid-net.c"
+#include <stdint.h>
+
 // Takes in an array of bytes, and returns a uint32_t that represents the
 // address to be used in network byte order.
 uint32_t stupid_bytes_to_address(uint8_t *byte_array);

@@ -17,16 +17,18 @@
 #define ENTER 10
 
 int main(int argc, char *argv[]) {
-  random_teamlid_thingie();
-  // TcpInstance instance = setup_tcp_instance();
-  //
-  // TcpConnection connection;
-  // uint16_t port = 9283;
-  // uint8_t addr[4] = {127, 0, 0, 1};
-  // uint32_t address = stupid_bytes_to_address(addr);
-  // bind_tcp_client(&instance);
-  // connect_tcp_client(&instance, &connection, port, address);
-  // char message[] = "Hello how you do bitch\n";
-  // write_connection(&connection, message, sizeof(message));
-  // close_connection(&connection);
+
+// TcpInstance instance = setup_tcp_instance();
+//
+// TcpConnection connection;
+// uint16_t port = 9999;
+// uint8_t addr[4] = {127, 0, 0, 1};
+// uint32_t address = stupid_bytes_to_address(addr);
+// bind_tcp_serv(&instance, port, address);
+#ifdef SERVER
+  server_program();
+#endif /* ifdef SERVER */
+#ifdef CLIENT
+  client_program();
+#endif /* ifdef CLIENT */
 }
