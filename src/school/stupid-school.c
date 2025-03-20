@@ -7,6 +7,7 @@
 #include <stupid-school.h>
 //
 
+#include <arpa/inet.h>
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -593,9 +594,9 @@ void client_program() {
   TcpInstance client = setup_tcp_instance();
   bind_tcp_client(&client);
   TcpConnection connection;
-  uint8_t addr[4] = {127, 0, 0, 1};
+  uint8_t addr[4] = {10, 10, 200, 201};
   uint32_t address = stupid_bytes_to_address(addr);
-  connect_tcp_client(&client, &connection, 9999, address);
+  connect_tcp_client(&client, &connection, 80, address);
   while (1) {
     if (poll(&connection.poll_descriptor, 1, 1)) {
       int bytes = read(connection.socketfd, buffer, sizeof(buffer) - 1);
@@ -628,7 +629,7 @@ void server_program() {
   uint16_t max_connections = 16;
   TcpConnection *connection_list[16] = {0};
   while (1) {
-    printf("Passed loop, connections: %d\n", connections);
+    // printf("Passed loop, connections: %d\n", connections);
     if (poll(&instance.poll_descriptor, 1, 1)) {
       TcpConnection *new_connection = malloc(sizeof(TcpConnection));
       int connection_result = accept_connection(&instance, new_connection);

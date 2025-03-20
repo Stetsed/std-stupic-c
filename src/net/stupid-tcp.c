@@ -4,6 +4,7 @@
  */
 
 #include <errno.h>
+#include <stdio.h>
 #include <stupid-tcp.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -51,7 +52,7 @@ void bind_tcp_client(TcpInstance *client) {
   address_info.sin_family = AF_INET;
   if (bind(client->socketfd, (struct sockaddr *)&address_info,
            sizeof(address_info)) < 0) {
-    stupid_handle_errno(errno);
+    perror("Bind_TCP_Client()");
   };
   client->Status = SocketActive;
   client->type = Client;
@@ -66,7 +67,8 @@ int connect_tcp_client(TcpInstance *client, TcpConnection *connection,
 
   while (1) {
     if (connect(client->socketfd, (struct sockaddr *)&addr, sizeof(addr))) {
-      if (errno != EINPROGRESS) {
+      if (errno != EINPROGRESS && errno != EALREADY && errno != ETIMEDOUT) {
+        perror("Connect_TCP_Client");
         stupid_handle_errno(errno);
       }
     } else {
