@@ -675,3 +675,73 @@ void server_program() {
     }
   }
 }
+void print_sudoku(int *array, int rows, int collums) {
+  for (int i = 0; i < rows; i++) {
+    for (int b = 0; b < collums; b++) {
+      printf("%d ", *(array + i * collums + b));
+    }
+    printf("\n");
+  }
+}
+
+int check_rijen(int *array, int rows, int collumns) {
+  for (int i = 0; i < rows; i++) {
+    int sum = 0;
+    for (int b = 0; b < collumns; b++) {
+      sum += *(array + i * collumns + b);
+    }
+    if (sum != 45) {
+      printf("Row %d is invalid\n", i + 1);
+    }
+  }
+  return 0;
+}
+
+int check_kolomen(int array[9][9], int rows, int collumns) {
+  for (int i = 0; i < collumns; i++) {
+    int sum = 0;
+    for (int b = 0; b < rows; b++) {
+      sum += array[i][b];
+    }
+    if (sum != 45) {
+      printf("Collumn %d is invalid\n", i + 1);
+    }
+  }
+  return 0;
+}
+
+int check_blocken(int array[9][9], int rows, int collumns, int block_size) {
+
+  for (int r = 0; r < (rows / block_size); r++) {
+    for (int c = 0; c < (collumns / block_size); c++) {
+      int sum = 0;
+      for (int i = 0; i < (rows / block_size); i++) {
+        for (int b = 0; b < (collumns / block_size); b++) {
+          sum += array[i + r * 3][b + c * 3];
+        }
+      }
+      if (sum != 45) {
+        printf("Block %d,%d is invalid\n", r + 1, c + 1);
+      }
+    }
+  }
+  return 0;
+}
+
+void sudoku() {
+  char buffer[256] = {0};
+  int sudoku_array[9][9];
+  int location = 0;
+  FILE *file_stream = fopen("sudoku.txt", "r+");
+
+  for (int i = 0; i < 9; i++) {
+    fgets(buffer, sizeof(buffer), file_stream);
+    for (int b = 0; b < 9; b++) {
+      sudoku_array[i][b] = stupid_char_int((buffer + b * 2));
+    }
+  }
+  print_sudoku((int *)sudoku_array, 9, 9);
+  check_rijen((int *)sudoku_array, 9, 9);
+  check_kolomen(sudoku_array, 9, 9);
+  check_blocken(sudoku_array, 9, 9, 3);
+}

@@ -8,5 +8,6 @@
 
 void client_program();
 void server_program();
+void sudoku();
 
 #endif // !STD_STUPID_SCHOOL
