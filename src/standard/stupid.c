@@ -282,3 +282,22 @@ int stupid_find_substring(char *string, char *substring) {
   }
   return -1;
 }
+
+int stupid_bytes_to_hex(char *output, size_t outssz, uint8_t *input,
+                        size_t insz) {
+  const char hex[] = "0123456789abcdef";
+  char *poutput = output;
+  uint8_t *pinput = input;
+
+  if (insz * 2 + 1 > outssz) {
+    return CATASTROPHIC_ERROR;
+  }
+
+  for (; pinput < input + insz; poutput += 2, pinput++) {
+    poutput[0] = hex[(*pinput >> 4) & 0xF];
+    poutput[1] = hex[*pinput & 0xF];
+  }
+  poutput[0] = 0;
+
+  return NO_ERROR;
+}

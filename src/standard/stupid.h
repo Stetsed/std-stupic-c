@@ -85,4 +85,10 @@ float stupid_average(float sum, int count);
 // return the index where the sub-string starts.
 int stupid_find_substring(char *string, char *substring);
 
+// Function takes in a buffer of chars, and a buffer of bytes, and will print
+// them in hexadecimal form to the output buffer. It requires the buffer to be
+// atleast 2x+1 the size of the input bytes.
+int stupid_bytes_to_hex(char *output, size_t outssz, uint8_t *input,
+                        size_t insz);
+
 #endif /* ifndef STD_STUPID_STANDARD */
