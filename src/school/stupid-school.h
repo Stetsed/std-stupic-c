@@ -9,5 +9,7 @@
 void client_program();
 void server_program();
 void sudoku();
+void random_vakken_dingen_2();
+void linked_list_stuff();
 
 #endif // !STD_STUPID_SCHOOL

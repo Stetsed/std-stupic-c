@@ -16,4 +16,4 @@
 #define EXIT_SUCCESS 0
 #define ENTER 10
 
-int main(int argc, char *argv[]) {}
+int main(int argc, char *argv[]) { linked_list_stuff(); }

@@ -468,6 +468,11 @@ typedef struct vak {
   int ECTS;
 } vak;
 
+typedef struct vak_pointer {
+  char *naam;
+  int ECTS;
+} vak_pointer;
+
 void change_vak(vak *vakken, int amount) {
   char buffer[64];
   int name_size = sizeof(vakken[0].naam);
@@ -492,6 +497,32 @@ void change_vak(vak *vakken, int amount) {
   vakken[index].ECTS = punten;
 }
 
+void change_vak_pointer(vak_pointer *vakken_p, int amount) {
+  char buffer[64];
+  int name_size = sizeof(vakken_p[0].naam);
+
+  stupid_println("Welke vak will je veranderen?(Index)");
+  stupid_buffer_read(buffer, 32);
+
+  int index = stupid_char_int(buffer);
+  if (index < 0 || index > amount - 1) {
+    stupid_println("Out of bounds");
+    exit(1);
+  }
+  // Delete old vak allocation
+  free(vakken_p[index].naam);
+  // Make new vak allocation
+  vakken_p[index].naam = (char *)malloc(sizeof(char) * 20);
+
+  stupid_println("Nieuw Vak Naam");
+  stupid_buffer_read(vakken_p[index].naam, 32);
+
+  stupid_println("Nieuw Vak ECTS Punten");
+  stupid_buffer_read(buffer, 32);
+  int punten = stupid_char_int(buffer);
+  vakken_p[index].ECTS = punten;
+}
+
 void change_vak_chosen(vak *vakk) {
   vak vaki = vakk[0];
   char buffer[64];
@@ -512,6 +543,28 @@ void random_vakken_dingen() {
 
   vak vakken[5] = {
       {"Ok", 10}, {"Okok", 20}, {"Okokok", 20}, {"Bruh", 69}, {"Brah", 420}};
+
+  for (int i = 0; i < (sizeof(vakken) / sizeof(vak)); i++) {
+    printf("Name: %s\n Digits: %d\n\n", vakken[i].naam, vakken[i].ECTS);
+  }
+  change_vak(vakken, (sizeof(vakken) / sizeof(vak)));
+  for (int i = 0; i < (sizeof(vakken) / sizeof(vak)); i++) {
+    printf("Name: %s\n Digits: %d\n\n", vakken[i].naam, vakken[i].ECTS);
+  }
+}
+
+void random_vakken_dingen_2() {
+  vak_pointer vakken_p[10];
+  vak vakken[10] = {
+      {"Ok", 10}, {"Okok", 20}, {"Okokok", 20}, {"Bruh", 69}, {"Brah", 420}};
+  printf("Size of the array with an array inside of it %lu\n", sizeof(vakken));
+  printf("Size of the array with a pointer inside of it %lu\n",
+         sizeof(vakken_p));
+
+  for (int i = 0; i < (sizeof(vakken_p) / sizeof(vakken_p[0])); i++) {
+    // Allocate the memory arrays
+    vakken_p[i].naam = (char *)malloc(sizeof(char) * 20);
+  }
 
   for (int i = 0; i < (sizeof(vakken) / sizeof(vak)); i++) {
     printf("Name: %s\n Digits: %d\n\n", vakken[i].naam, vakken[i].ECTS);
@@ -744,4 +797,102 @@ void sudoku() {
   check_rijen((int *)sudoku_array, 9, 9);
   check_kolomen(sudoku_array, 9, 9);
   check_blocken(sudoku_array, 9, 9, 3);
+}
+
+typedef struct school_linked_list {
+  int value;
+  struct school_linked_list *pointer_next;
+} school_linked_list;
+
+void change_entry(school_linked_list *linked_list_start) {
+  char buffer[64];
+
+  stupid_println("Index om weg te halen");
+  stupid_buffer_read(buffer, 32);
+  int index = stupid_char_int(buffer);
+  school_linked_list *current = linked_list_start;
+  school_linked_list *pointer_old = 0;
+  school_linked_list *pointer_after = 0;
+  school_linked_list *pointer_before = 0;
+
+  for (int i = 0; i < index; i++) {
+    current = current->pointer_next;
+  }
+  pointer_before = current;
+  pointer_old = current->pointer_next;
+  pointer_after = current->pointer_next->pointer_next;
+  printf("Current: %p, After %p, Before %p\n", current, pointer_after,
+         pointer_before);
+  pointer_before->pointer_next = pointer_after;
+  free(pointer_old);
+}
+
+void change_value(school_linked_list *linked_list_start) {
+  char buffer[64];
+
+  stupid_println("Index om te veranderen");
+  stupid_buffer_read(buffer, 32);
+  int index = stupid_char_int(buffer);
+  school_linked_list *current = linked_list_start;
+
+  for (int i = 0; i <= index; i++) {
+    current = current->pointer_next;
+  }
+
+  printf("Current value: %d", current->value);
+  stupid_println("Value to change to: ");
+  stupid_buffer_read(buffer, 32);
+  current->value = stupid_char_int(buffer);
+}
+
+void add_to_end(school_linked_list *linked_list_start) {
+  char buffer[64] = {0};
+  stupid_println("Value to add to list: ");
+  stupid_buffer_read(buffer, 32);
+  int value = stupid_char_int(buffer);
+
+  school_linked_list *ll_pointer = linked_list_start;
+  while (ll_pointer->pointer_next != 0) {
+    ll_pointer = ll_pointer->pointer_next;
+  }
+  school_linked_list *new_entry = malloc(sizeof(school_linked_list));
+  new_entry->pointer_next = 0;
+  new_entry->value = value;
+  ll_pointer->pointer_next = new_entry;
+}
+
+school_linked_list *
+remove_from_beginning(school_linked_list *linked_list_old_start) {
+  school_linked_list *new_start = linked_list_old_start->pointer_next;
+  free(linked_list_old_start);
+  return new_start;
+}
+void linked_list_stuff() {
+  int array[] = {0, 10, 20, 30, 40, 50, 60, 80, 90};
+
+  int array_entries = (sizeof(array) / sizeof(int));
+
+  school_linked_list linked_list_start = {array[0], 0};
+
+  school_linked_list *linked_list_previous = &linked_list_start;
+
+  // Starting at 1 because we already have entry 0
+  for (int i = 1; i < array_entries; i++) {
+    school_linked_list *linked_list_next = malloc(sizeof(school_linked_list));
+    linked_list_previous->pointer_next = linked_list_next;
+    linked_list_next->pointer_next = 0;
+    linked_list_next->value = array[i];
+    linked_list_previous = linked_list_next;
+  }
+
+  school_linked_list *current_read = &linked_list_start;
+  int entry_counter = 0;
+  // change_entry(&linked_list_start);
+  change_value(&linked_list_start);
+  do {
+    printf("Entry %d value is %d next address is %p\n", entry_counter,
+           current_read->value, current_read->pointer_next);
+    entry_counter++;
+    current_read = current_read->pointer_next;
+  } while (current_read != 0);
 }
