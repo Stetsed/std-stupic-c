@@ -896,3 +896,75 @@ void linked_list_stuff() {
     current_read = current_read->pointer_next;
   } while (current_read != 0);
 }
+
+typedef struct studieResultaat {
+  int id;
+  char vak[12];
+  int ECTS;
+  double cijfer;
+} studieResultaat;
+
+static int function_pointer_stuff_sort_naam(const void *p1, const void *p2) {
+  return *((const studieResultaat *)p1)->vak -
+         *((const studieResultaat *)p2)->vak;
+}
+
+static int function_pointer_stuff_sort_ects(const void *p1, const void *p2) {
+  int ects_diff =
+      ((const studieResultaat *)p1)->ECTS - ((const studieResultaat *)p2)->ECTS;
+  if (ects_diff != 0) {
+    return ects_diff;
+  } else {
+    return function_pointer_stuff_sort_naam(p1, p2);
+  }
+}
+
+static int function_pointer_stuff_sort_grades(const void *p1, const void *p2) {
+  return ((const studieResultaat *)p1)->cijfer -
+         ((const studieResultaat *)p2)->cijfer;
+}
+
+void function_pointer_stuff() {
+  studieResultaat resultaten[4] = {{5, "Wis", 10, 6.9},
+                                   {1, "Natuur", 20, 7.5},
+                                   {2, "Scheik", 5, 2.5},
+                                   {0, "Neder", 25, 1.2}};
+
+  qsort(resultaten, 4, sizeof(studieResultaat),
+        function_pointer_stuff_sort_grades);
+
+  for (int i = 0; i < 4; i++) {
+    printf("Vak %s with ID of %d has %d ECTS points and a grade of %f\n",
+           resultaten[i].vak, resultaten[i].id, resultaten[i].ECTS,
+           resultaten[i].cijfer);
+  }
+}
+
+float fah_naar_celcius(float fah) { return (fah - 32) / 1.8; }
+
+float span_naar_celcius(float span) {
+  float stapjes_per_volt = 100.0 / 5.0;
+  int base = -20;
+
+  return (base + (span * stapjes_per_volt));
+}
+
+void kopieer_met_conversie(float (*FunctionPtr)(float), float input) {
+  printf("%f", FunctionPtr(input));
+}
+
+void lees_values_school_thingie() {
+  char buffer[1024] = {0};
+  float storage_array[256] = {0.0};
+  FILE *file_stream = fopen("waardes.txt", "r+");
+
+  for (int i = 0; i < 9; i++) {
+    fgets(buffer, sizeof(buffer), file_stream);
+    storage_array[i] = atof(buffer);
+  }
+  for (int i = 0; i < sizeof(storage_array); i++) {
+    if (storage_array[i] != 0.0) {
+      kopieer_met_conversie(span_naar_celcius, storage_array[i]);
+    }
+  }
+}
