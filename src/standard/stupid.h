@@ -7,7 +7,6 @@
 #define STD_STUPID_STANDARD
 #pragma once
 
-#include <stdbool.h>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -20,6 +19,10 @@
 #define CATASTROPHIC_ERROR -1
 #define EXPECTED_ERROR -2
 #define IGNORE_ERROR -3
+
+typedef uint8_t bool;
+#define true 1
+#define false 0
 
 #ifdef DEBUG
 #define SHOW printf
