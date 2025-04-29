@@ -68,20 +68,30 @@ int stupid_power(int start, int exponent);
 int stupid_abs(int input);
 
 /**
- * Takes in a pointer to a string and prints this to STDOUT(1)
+ * Takes in a pointer to a null-terminated character array and prints this to
+ * STDOUT(1)
  *
  * Input:
  * - Pointer to a charachter array
+ *
+ * Returns:
+ * - 0 String was correctly printed
+ * - -1 if pointer was NULL
  */
-void stupid_print(const char *output);
+int stupid_print(const char *output);
 
 /**
- * Takes in a pointer to a string and prints this to STDOUT(1) and a line return
+ * Takes in a pointer to a null-terminated character array and prints this to
+ * STDOUT(1) and a line return
  *
  * Input:
- * - Pointer to a charachter array
+ * - Pointer to a character array
+ *
+ * Returns:
+ * - 0 String was correctly printed
+ * - -1 if pointer was NULL
  */
-void stupid_println(const char *output);
+int stupid_println(const char *output);
 
 /**
  * Takes in a pointer to a byte array, and an amount of bytes to read from
@@ -93,12 +103,10 @@ void stupid_println(const char *output);
  *
  * Returns:
  * - >=0 Amount of bytes read into buffer
- * - -1 Error occurred while reading
+ * - -1 Pointer to buffer was NULL or Error occurred while reading
  */
 int stupid_buffer_read(uint8_t *buff, int bytes);
 
-// Input: char[] that contains a number to be parsed, number cannot be >=
-// INT_MAX
 /**
  * Takes in a pointer to a null-terminated character array that contains a
  * number to be parsed
@@ -113,14 +121,26 @@ int stupid_buffer_read(uint8_t *buff, int bytes);
  */
 int stupid_char_int(char *input);
 
+/**
+ * Takes a character buffer and an integer and converts the integer to it's
+ * character representation.
+ *
+ * Input:
+ * - Pointer to a character buffer
+ * - Int with the length of the character buffer
+ * - Int of the value that should be converted
+ *
+ * Returns:
+ * - 0 Integer was successfully converted
+ * - -1 Pointer was NULL or length of buffer was less than (-)digits+1
+ */
+int stupid_int_char(char *buffer, int len, int input);
+
 // Convert a null delimited string to either all uppercase charachters or lower
 // case charachters.
 void stupid_str_lowercase(char *buffer);
 void stupid_str_uppercase(char *buffer);
 
-// Buffer: char[] that has a size of digits + 2
-// Input: Int that is converted to a string
-void stupid_int_char(char *buffer, int input);
 // Compares 2 strings, returns EXPECTED_ERROR if they don't, otherwise returns 0
 int stupid_strcmp(char *string, char *string2);
 // Compares 2 strings, returns EXPECTED_ERROR if they don't, otherwise returns

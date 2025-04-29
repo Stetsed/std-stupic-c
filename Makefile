@@ -18,7 +18,7 @@ LANG_ARGS := -x c -std=c99
 WARNING_ARGS := -pedantic-errors -Wall -Wextra -Wno-unused-parameter
 RELEASE_ARGS := -O3 -Wl,--gc-sections
 
-.PHONY: debug test release
+.PHONY: debug test release test-release
 
 debug: 
 	@echo "Compiling the program with debug parameters"
@@ -28,6 +28,12 @@ test:
 	@echo "Running tests for std-stupid-c with unity"
 	mkdir build > /dev/null 2>&1 || true
 	$(CCOMPILER) $(CCOMPILER_FLAGS) $(TEST_CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) -g $(TEST_SOURCE_FILES) -o $(TEST_OUTPUT) $(EXTRA_ARGS)
+	$(TEST_OUTPUT)
+
+test-release:
+	@echo "Running tests for std-stupid-c with unity"
+	mkdir build > /dev/null 2>&1 || true
+	$(CCOMPILER) $(CCOMPILER_FLAGS) $(TEST_CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) $(RELEASE_ARGS) $(TEST_SOURCE_FILES) -o $(TEST_OUTPUT) $(EXTRA_ARGS)
 	$(TEST_OUTPUT)
 
 release: 

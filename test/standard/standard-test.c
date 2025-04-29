@@ -55,3 +55,31 @@ void test_stupid_char_int(void) {
   // Should return 0 because it has no valid integer
   TEST_ASSERT_EQUAL(0, int_value_4);
 }
+
+void test_stupid_int_char(void) {
+  int test_int_1 = 82000;
+  int test_int_2 = -72000;
+  int test_int_3 = 0;
+  int test_int_4 = -386;
+
+  char test_buffer_1[64];
+  char test_buffer_2[64];
+  char test_buffer_3[64];
+  char test_buffer_4[4];
+
+  int result_1 =
+      stupid_int_char(test_buffer_1, sizeof(test_buffer_1), test_int_1);
+  int result_2 =
+      stupid_int_char(test_buffer_2, sizeof(test_buffer_2), test_int_2);
+  int result_3 =
+      stupid_int_char(test_buffer_3, sizeof(test_buffer_3), test_int_3);
+  int result_4 =
+      stupid_int_char(test_buffer_4, sizeof(test_buffer_4), test_int_4);
+
+  TEST_ASSERT_EQUAL_CHAR_ARRAY("82000", test_buffer_1, stupid_strlen("82000"));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY("-72000", test_buffer_2,
+                               stupid_strlen("-72000"));
+  TEST_ASSERT_EQUAL_CHAR_ARRAY("0", test_buffer_3, stupid_strlen("0"));
+  // Should return an error because the array is not big enough, so should be -1
+  TEST_ASSERT_EQUAL(result_4, -1);
+}

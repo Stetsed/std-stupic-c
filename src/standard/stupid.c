@@ -42,16 +42,27 @@ int stupid_abs(int input) {
   return input;
 }
 
-void stupid_print(const char *output) {
+int stupid_print(const char *output) {
+  if (output == NULL) {
+    return -1;
+  }
   write(STDOUT, output, stupid_strlen(output));
+  return 0;
 }
 
-void stupid_println(const char *output) {
+int stupid_println(const char *output) {
+  if (output == NULL) {
+    return -1;
+  }
   write(STDOUT, output, stupid_strlen(output));
   write(STDOUT, "\n", 1);
+  return 0;
 }
 
 int stupid_buffer_read(uint8_t *buff, int bytes) {
+  if (buff == NULL) {
+    return -1;
+  }
   int length = read(STDIN, buff, bytes);
   if (length >= 0) {
     return length;
@@ -60,7 +71,6 @@ int stupid_buffer_read(uint8_t *buff, int bytes) {
   }
 }
 
-// Assumes that byte is a number between 0 and 9
 int stupid_char_int(char *input) {
   int returning = 0;
   bool first = true;
@@ -83,12 +93,17 @@ int stupid_char_int(char *input) {
   return returning;
 }
 
-void stupid_int_char(char *buffer, int input) {
+int stupid_int_char(char *buffer, int len, int input) {
+  if (buffer == NULL) {
+    return -1;
+  }
+  bool negative = false;
   int digits = 1;
   if (input < 0) {
     *buffer = '-';
     buffer++;
     input = stupid_abs(input);
+    negative = true;
   }
   for (int i = 10; true; i *= 10) {
     if (input / i > 0) {
@@ -98,14 +113,18 @@ void stupid_int_char(char *buffer, int input) {
       break;
     }
   }
+  if (len < (digits + 1 + negative)) {
+    return CATASTROPHIC_ERROR;
+  }
 
-  for (int i = 0; digits > i; i++) {
+  for (int i = 0; i < digits; i++) {
     char charachter_gotten = (input / stupid_power(10, digits - i - 1)) + '0';
     buffer[i] = charachter_gotten;
     input %= stupid_power(10, digits - i - 1);
   }
 
   buffer[digits + 1] = 0;
+  return 0;
 }
 
 void stupid_strcpy(char *buffer, char *input) {
