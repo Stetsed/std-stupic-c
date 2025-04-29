@@ -6,18 +6,11 @@
 // Header
 #include <stupid.h>
 //
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#define NO_ERROR 0
-#define CATASTROPHIC_ERROR -1
-#define EXPECTED_ERROR -2
-#define IGNORE_ERROR -3
 
 int stupid_strlen(const char *string) {
+  if (string == NULL) {
+    return -1;
+  }
   int counter = 0;
   for (; string[counter]; counter++)
     ;
@@ -27,11 +20,16 @@ int stupid_strlen(const char *string) {
 int stupid_power(int start, int factor) {
   int counter = 0;
   int returning = start;
+  int before = 0;
   if (factor == 0) {
     return 1;
   }
   while (counter < factor - 1) {
+    before = returning;
     returning *= start;
+    if (returning < before) {
+      return -1;
+    }
     counter++;
   }
   return returning;
@@ -45,75 +43,44 @@ int stupid_abs(int input) {
 }
 
 void stupid_print(const char *output) {
-  write(fileno(stdout), output, stupid_strlen(output));
+  write(STDOUT, output, stupid_strlen(output));
 }
 
 void stupid_println(const char *output) {
-  write(fileno(stdout), output, stupid_strlen(output));
-  write(fileno(stdout), "\n", 1);
+  write(STDOUT, output, stupid_strlen(output));
+  write(STDOUT, "\n", 1);
 }
 
-int stupid_buffer_read(char *buff, int bytes) {
-  int status = read(fileno(stdin), buff, bytes);
-  buff[status] = 0;
-  if (status > 0) {
-    return status;
+int stupid_buffer_read(uint8_t *buff, int bytes) {
+  int length = read(STDIN, buff, bytes);
+  if (length >= 0) {
+    return length;
   } else {
     return -1;
   }
 }
 
-// Assumes that byte is a number between 0 and 9, otherwise returns -1 for error
+// Assumes that byte is a number between 0 and 9
 int stupid_char_int(char *input) {
   int returning = 0;
-  int length = stupid_strlen(input);
-  // input += length - 1;
   bool first = true;
-  bool positive = true;
+  bool negative = false;
 
-  while (*input >= '0' && *input <= '9' || first == true && *input == '-') {
+  while ((*input >= '0' && *input <= '9') || (first == true && *input == '-')) {
     first = false;
     returning *= 10;
     if (*input == '-') {
-      positive = false;
+      negative = true;
     } else {
       returning += (*input - '0');
     }
     input++;
   }
-  if (!positive) {
+  if (negative) {
     returning *= -1;
   }
 
   return returning;
-}
-
-// Assumes that byte is a number between 0 and 9, otherwise returns -1 for error
-int stupid_char_int_error(char *input) {
-  int multiplier = 1;
-  int returning = 0;
-  int length = stupid_strlen(input);
-  input += length - 1;
-  bool first = true;
-  bool hit = false;
-
-  while (*input >= '0' && *input <= '9' || first == true && *input == '\n') {
-    if (*input == '\n') {
-      first = false;
-    } else {
-      hit = true;
-      int returning_add = (*input - '0') * multiplier;
-      returning += returning_add++;
-      multiplier *= 10;
-    }
-    --input;
-  }
-
-  if (hit == true) {
-    return returning;
-  } else {
-    return -1;
-  }
 }
 
 void stupid_int_char(char *buffer, int input) {
@@ -240,12 +207,6 @@ void stupid_str_uppercase(char *buffer) {
     }
   }
   buffer[i + 1] = 0;
-}
-
-void stupid_handle_errno(int error) {
-  char *errorio = strerror(error);
-  stupid_println(errorio);
-  exit(1);
 }
 
 float stupid_average(float sum, int count) {

@@ -8,6 +8,8 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 // These errors are defined to use in the library, if a value of -1 is given
@@ -24,36 +26,98 @@ typedef uint8_t bool;
 #define true 1
 #define false 0
 
-#ifdef DEBUG
-#define SHOW printf
-#else
-#define SHOW // macros
-#endif
+#define STDIN 0
+#define STDOUT 1
+#define STDERROR 2
 
-// Takes in a null delimited string and returns the length of the string
-// null-indexed.
+/**
+ * Obtains the length of a string by looking for the null terminator.
+ *
+ * Input:
+ * - Pointer to a character array
+ *
+ * Returns:
+ * - >=0 Length of the string not including null terminator
+ * - -1 if the provided pointer is NULL
+ */
 int stupid_strlen(const char *string);
+
+/**
+ * Takes in a start number and puts it to the power specified
+ *
+ * Input:
+ * - Int of the number to factor
+ * - Int of the exponent for the power calculation
+ *
+ * Returns:
+ * - >=0 Returned calculated power value
+ * - -1 if an integer overflow occurs
+ */
+int stupid_power(int start, int exponent);
+
+/**
+ * Takes in an integer and returns the absolute value from 0
+ *
+ * Input:
+ * - Int of the number to grab the absolute value of
+ *
+ * Returns:
+ * - >=0 Absolute value from 0 from the input
+ * - -1 if an integer overflow occurs
+ */
+int stupid_abs(int input);
+
+/**
+ * Takes in a pointer to a string and prints this to STDOUT(1)
+ *
+ * Input:
+ * - Pointer to a charachter array
+ */
+void stupid_print(const char *output);
+
+/**
+ * Takes in a pointer to a string and prints this to STDOUT(1) and a line return
+ *
+ * Input:
+ * - Pointer to a charachter array
+ */
+void stupid_println(const char *output);
+
+/**
+ * Takes in a pointer to a byte array, and an amount of bytes to read from
+ * STDIN(0)
+ *
+ * Input:
+ * - Pointer to a byte array to store data in
+ * - Int of the amount of bytes to read, not > size buffer
+ *
+ * Returns:
+ * - >=0 Amount of bytes read into buffer
+ * - -1 Error occurred while reading
+ */
+int stupid_buffer_read(uint8_t *buff, int bytes);
+
+// Input: char[] that contains a number to be parsed, number cannot be >=
+// INT_MAX
+/**
+ * Takes in a pointer to a null-terminated character array that contains a
+ * number to be parsed
+ *
+ * Input:
+ * - Pointer to a null-terminated character array that represents a number that
+ * is <=INT_MAX
+ *
+ * Returns:
+ * - > 0 < Number that was parsed
+ * - 0 Number was equal to 0 or no number was parsed
+ */
+int stupid_char_int(char *input);
 
 // Convert a null delimited string to either all uppercase charachters or lower
 // case charachters.
 void stupid_str_lowercase(char *buffer);
 void stupid_str_uppercase(char *buffer);
 
-// Methods to print to the standard STDOUT(1), can use println to include adding
-// the line return.
-void stupid_print(const char *output);
-void stupid_println(const char *output);
-
-int stupid_power(int start, int factor);
-
-int stupid_buffer_read(char *buff, int bytes);
-// Input: char[] that contains a number to be parsed, number cannot be >=
-// INT_MAX
-int stupid_char_int(char *input);
-// Input: char[] that contains a number to be parsed, number cannot be >=
-// INT_MAX, compared to stupid_char_int it will return -1 if not a valid number
-// instead of 0
-int stupid_char_int_error(char *input);
 // Buffer: char[] that has a size of digits + 2
 // Input: Int that is converted to a string
 void stupid_int_char(char *buffer, int input);
