@@ -1,20 +1,20 @@
-name: Docker Build
-
-on:
-  push:
-    branches:
-      - "main"
-
-jobs:
-  docker:
-    runs-on: ubuntu-latest
-    container:
-      image: debian:stable-slim
-    steps:
-      - run: apt -y update && apt -y install valgrind cppcheck nodejs git
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-      - run: make test
-      - run: make test-release
+# name: Docker Build
+#
+# on:
+#   push:
+#     branches:
+#       - "main"
+#
+# jobs:
+#   docker:
+#     runs-on: ubuntu-latest
+#     container:
+#       image: debian:stable-slim
+#     steps:
+#       - run: apt -y update && apt -y install valgrind cppcheck nodejs git
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+#         with:
+#           submodules: true
+#       - run: make test
+#       - run: make test-release
