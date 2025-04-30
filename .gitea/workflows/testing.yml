@@ -9,12 +9,12 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     container:
-      image: catthehacker/ubuntu:act-latest
+      image: debian:stable-slim
     steps:
+      - run: apt -y update && apt -y install valgrind cppcheck nodejs git
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           submodules: true
-      - run: apt -y install valgrind cppcheck
       - run: make test
       - run: make test-release

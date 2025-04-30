@@ -20,7 +20,7 @@ LANG_ARGS := -x c -std=c99
 WARNING_ARGS := -pedantic-errors -Wall -Wextra -Wno-unused-parameter
 RELEASE_ARGS := -O3 -Wl,--gc-sections
 
-CPPCHECK_ARGS := -q --check-level=exhaustive --std=c99 --platform=unix32
+CPPCHECK_ARGS := -q --std=c99 --platform=unix32
 VALGRIND_ARGS := -q --leak-check=full --show-leak-kinds=all --track-origins=yes
 
 .PHONY: debug test release test-release
