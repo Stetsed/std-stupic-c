@@ -1,5 +1,5 @@
-
-SRC_DIRECTORY := src
+SELF_SRC_DIRECTORY := src
+SRC_DIRECTORY := src lib
 
 CCOMPILER := clang
 DIRS := $(shell find $(SRC_DIRECTORY) -type d)
@@ -20,7 +20,7 @@ LANG_ARGS := -x c -std=c99
 WARNING_ARGS := -pedantic-errors -Wall -Wextra -Wno-unused-parameter
 RELEASE_ARGS := -O3 -Wl,--gc-sections
 
-CPPCHECK_ARGS := -q --std=c99 --platform=unix32
+CPPCHECK_ARGS := -q --check-level=exhaustive --std=c99 --platform=unix32
 VALGRIND_ARGS := -q --leak-check=full --show-leak-kinds=all --track-origins=yes
 
 .PHONY: debug test release test-release
@@ -33,7 +33,7 @@ test:
 	@echo "Running tests for std-stupid-c with unity"
 	@mkdir build > /dev/null 2>&1 || true
 	@echo "Running Static Analysis with CPPCheck"
-	@cppcheck $(CPPCHECK_ARGS) $(SRC_DIRECTORY)
+	@cppcheck $(CPPCHECK_ARGS) $(SELF_SRC_DIRECTORY)
 	@$(CCOMPILER) $(CCOMPILER_FLAGS) $(TEST_CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) -g $(TEST_SOURCE_FILES) -o $(TEST_OUTPUT) $(EXTRA_ARGS)
 	@echo "Running the tests with valgrind"
 	@valgrind $(VALGRIND_ARGS) $(TEST_OUTPUT)
@@ -42,7 +42,7 @@ test-release:
 	@echo "Running tests for std-stupid-c with unity in release mode"
 	@mkdir build > /dev/null 2>&1 || true
 	@echo "Running Static Analysis with CPPCheck"
-	@cppcheck $(CPPCHECK_ARGS) $(SRC_DIRECTORY)
+	@cppcheck $(CPPCHECK_ARGS) $(SELF_SRC_DIRECTORY)
 	@$(CCOMPILER) $(CCOMPILER_FLAGS) $(TEST_CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) $(RELEASE_ARGS) $(TEST_SOURCE_FILES) -o $(TEST_OUTPUT) $(EXTRA_ARGS)
 	@echo "Running the tests with valgrind"
 	@valgrind $(VALGRIND_ARGS) $(TEST_OUTPUT)

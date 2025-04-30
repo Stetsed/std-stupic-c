@@ -1,10 +1,11 @@
+#if defined(unix) || defined(__unix__) || defined(__unix)
 /*
  * Copyright (c) Quinn Hooft (Stetsed)
  * SPDX-License-Identifier: MIT
  */
 
 // Header
-#include "unix.h"
+#include "stupid-unix.h"
 //
 
 int stupid_print(const char *output) {
@@ -39,3 +40,5 @@ int stupid_buffer_read(uint8_t *buff, int bytes) {
 int stupid_random(int maximum, int minimum) {
   return (rand() % (maximum + 1 - minimum) + minimum);
 }
+
+#endif /* Check if platform is unix */

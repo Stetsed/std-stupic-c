@@ -4,7 +4,7 @@
  */
 
 // Header
-#include <stupid.h>
+#include "stupid.h"
 //
 
 int stupid_strlen(const char *string) {

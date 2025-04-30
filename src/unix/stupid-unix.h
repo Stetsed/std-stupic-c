@@ -1,8 +1,8 @@
+#if defined(unix) || defined(__unix__) || defined(__unix)
 /*
  * Copyright (c) Quinn Hooft (Stetsed)
  * SPDX-License-Identifier: MIT
  */
-
 #ifndef STD_STUPID_UNIX
 #define STD_STUPID_UNIX
 #pragma once
@@ -67,3 +67,5 @@ int stupid_buffer_read(uint8_t *buff, int bytes);
 int stupid_random(int maximum, int minimum);
 
 #endif /* ifndef STD_STUPID_UNIX */
+
+#endif /* Check if platform is unix */

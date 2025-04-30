@@ -1,5 +1,9 @@
 # I want to murder C
 
+# Encryption
+
+Encryption functions are provided by the [MonoCypher](https://github.com/LoupVaillant/Monocypher) library
+
 # Testing
 
 1. Unit Testing with [Unity](https://github.com/ThrowTheSwitch/Unity)
