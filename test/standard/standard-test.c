@@ -1,4 +1,5 @@
 #include "standard-test.h"
+#include "stdlib.h"
 #include "stupid.h"
 #include <unity.h>
 
@@ -67,12 +68,9 @@ void test_stupid_int_char(void) {
   char test_buffer_3[64];
   char test_buffer_4[4];
 
-  int result_1 =
-      stupid_int_char(test_buffer_1, sizeof(test_buffer_1), test_int_1);
-  int result_2 =
-      stupid_int_char(test_buffer_2, sizeof(test_buffer_2), test_int_2);
-  int result_3 =
-      stupid_int_char(test_buffer_3, sizeof(test_buffer_3), test_int_3);
+  stupid_int_char(test_buffer_1, sizeof(test_buffer_1), test_int_1);
+  stupid_int_char(test_buffer_2, sizeof(test_buffer_2), test_int_2);
+  stupid_int_char(test_buffer_3, sizeof(test_buffer_3), test_int_3);
   int result_4 =
       stupid_int_char(test_buffer_4, sizeof(test_buffer_4), test_int_4);
 

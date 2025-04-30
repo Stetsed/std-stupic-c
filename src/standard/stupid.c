@@ -42,35 +42,6 @@ int stupid_abs(int input) {
   return input;
 }
 
-int stupid_print(const char *output) {
-  if (output == NULL) {
-    return -1;
-  }
-  write(STDOUT, output, stupid_strlen(output));
-  return 0;
-}
-
-int stupid_println(const char *output) {
-  if (output == NULL) {
-    return -1;
-  }
-  write(STDOUT, output, stupid_strlen(output));
-  write(STDOUT, "\n", 1);
-  return 0;
-}
-
-int stupid_buffer_read(uint8_t *buff, int bytes) {
-  if (buff == NULL) {
-    return -1;
-  }
-  int length = read(STDIN, buff, bytes);
-  if (length >= 0) {
-    return length;
-  } else {
-    return -1;
-  }
-}
-
 int stupid_char_int(char *input) {
   int returning = 0;
   bool first = true;
@@ -233,10 +204,6 @@ float stupid_average(float sum, int count) {
   return average;
 }
 
-int stupid_random(int maximum, int minimum) {
-  return (rand() % (maximum + 1 - minimum) + minimum);
-}
-
 int stupid_find_substring(char *string, char *substring) {
   int string_length = stupid_strlen(string);
   int substring_length = stupid_strlen(substring);
@@ -261,8 +228,8 @@ int stupid_find_substring(char *string, char *substring) {
   return -1;
 }
 
-int stupid_bytes_to_hex(char *output, size_t outssz, uint8_t *input,
-                        size_t insz) {
+int stupid_bytes_to_hex(char *output, unsigned int outssz, uint8_t *input,
+                        unsigned int insz) {
   const char hex[] = "0123456789abcdef";
   char *poutput = output;
   uint8_t *pinput = input;

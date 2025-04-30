@@ -11,6 +11,5 @@ int main(int argc, char *argv[]) {
   RUN_TEST(test_stupid_abs);
   RUN_TEST(test_stupid_char_int);
   RUN_TEST(test_stupid_int_char);
-  return EXIT_SUCCESS;
   return UNITY_END();
 }

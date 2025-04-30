@@ -8,9 +8,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 // These errors are defined to use in the library, if a value of -1 is given
 // it's a catastrophic error which means fundemental flow of program has broken,
@@ -29,6 +26,10 @@ typedef uint8_t bool;
 #define STDIN 0
 #define STDOUT 1
 #define STDERROR 2
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 /**
  * Obtains the length of a string by looking for the null terminator.
@@ -66,46 +67,6 @@ int stupid_power(int start, int exponent);
  * - -1 if an integer overflow occurs
  */
 int stupid_abs(int input);
-
-/**
- * Takes in a pointer to a null-terminated character array and prints this to
- * STDOUT(1)
- *
- * Input:
- * - Pointer to a charachter array
- *
- * Returns:
- * - 0 String was correctly printed
- * - -1 if pointer was NULL
- */
-int stupid_print(const char *output);
-
-/**
- * Takes in a pointer to a null-terminated character array and prints this to
- * STDOUT(1) and a line return
- *
- * Input:
- * - Pointer to a character array
- *
- * Returns:
- * - 0 String was correctly printed
- * - -1 if pointer was NULL
- */
-int stupid_println(const char *output);
-
-/**
- * Takes in a pointer to a byte array, and an amount of bytes to read from
- * STDIN(0)
- *
- * Input:
- * - Pointer to a byte array to store data in
- * - Int of the amount of bytes to read, not > size buffer
- *
- * Returns:
- * - >=0 Amount of bytes read into buffer
- * - -1 Pointer to buffer was NULL or Error occurred while reading
- */
-int stupid_buffer_read(uint8_t *buff, int bytes);
 
 /**
  * Takes in a pointer to a null-terminated character array that contains a
@@ -152,10 +113,6 @@ int stupid_strcmp_ignorec(char *string, char *string2, char *chartoign);
 // and exits the program.
 void stupid_handle_errno(int error);
 
-// Function that takes in a maximum and a minimum, and returns a random number
-// between these 2 using system RAND.
-int stupid_random(int maximum, int minimum);
-
 // Function that takes in 2 arrays, and copies one to the other.
 void stupid_strcpy(char *buffer, char *input);
 
@@ -175,7 +132,7 @@ int stupid_find_substring(char *string, char *substring);
 // Function takes in a buffer of chars, and a buffer of bytes, and will print
 // them in hexadecimal form to the output buffer. It requires the buffer to be
 // atleast 2x+1 the size of the input bytes.
-int stupid_bytes_to_hex(char *output, size_t outssz, uint8_t *input,
-                        size_t insz);
+int stupid_bytes_to_hex(char *output, unsigned int outssz, uint8_t *input,
+                        unsigned int insz);
 
 #endif /* ifndef STD_STUPID_STANDARD */
