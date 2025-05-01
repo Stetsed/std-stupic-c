@@ -10,17 +10,19 @@
 #include <stdint.h>
 
 #define STANDARD_BLAKE_HASH_SIZE 32
+#define STANDARD_BLAKE_KEY (uint8_t *)"StupidProtocol"
+#define STANDARD_BLAKE_KEY_SIZE 14
 #define MAX_LENGTH_PACKET 127
 
-typedef enum MESSAGE_TYPE {
+typedef enum _stpprot_message_type {
   GET_MESSAGE = 128,
   SEND_MESSAGE = 0,
-} MESSAGE_TYPE;
+} stpprot_message_type;
 
-typedef enum HASH_STATUS {
+typedef enum _stpprot_hash_status {
   HASH_VALID = 1,
   HASH_INVALID = 0,
-} HASH_STATUS;
+} stpprot_hash_status;
 
 /**
  * Protocol Design:
@@ -43,13 +45,13 @@ typedef enum HASH_STATUS {
 
 typedef struct _stpprot_message_start_byte {
   uint8_t byte;
-  MESSAGE_TYPE type;
+  stpprot_message_type type;
   uint8_t len;
 } stpprot_message_start_byte_t;
 
 typedef struct _stpprot_message_packet {
-  MESSAGE_TYPE type;
-  HASH_STATUS hash_status;
+  stpprot_message_type type;
+  stpprot_hash_status hash_status;
   uint8_t len;
   uint8_t data_bytes[MAX_LENGTH_PACKET];
   uint8_t hash[STANDARD_BLAKE_HASH_SIZE];
@@ -80,10 +82,10 @@ int stpprot_packet_init(stpprot_message_packet_t *packet);
  *
  * Returns:
  * - 0 Data is inserted
- * - -1 Pointer is NULL
+ * - -1 Pointer is NULL or length is too high
  */
 int stpprot_packet_set_message(stpprot_message_packet_t *packet, uint8_t *data,
-                               int len);
+                               int len, stpprot_message_type type);
 
 /**
  * Takes in a pointer to a message_packet object, a pointer to a byte array and
@@ -103,5 +105,38 @@ int stpprot_packet_set_message(stpprot_message_packet_t *packet, uint8_t *data,
  */
 int stpprot_packet_prepare_message(stpprot_message_packet_t *packet,
                                    uint8_t *send_buffer, int len);
+
+/**
+ * Retrieve the data contained in the start byte including the length and the
+ * type of the message.
+ *
+ * Input:
+ * - Pointer to a message start byte
+ * - Byte that is the first byte received
+ *
+ * Returns:
+ * - 0 Data parsed succesfully
+ * - -1 Pointer is NULL
+ */
+int stpprot_start_retrieve_data(stpprot_message_start_byte_t *start_byte,
+                                uint8_t start);
+
+/**
+ * Retrieve the data contained in the start byte including the length and the
+ * type of the message.
+ *
+ * Input:
+ * - Pointer to a message start object that contains the first parsed byte that
+ * was received
+ * - Pointer to a message_packet object
+ * - Pointer to an array of data that contains the amount of bytes specified in
+ * the start byte
+ *
+ * Returns:
+ * - 0 Data parsed succesfully
+ * - -1 Pointer is NULL
+ */
+int stpprot_packet_parse(stpprot_message_start_byte_t *start_byte,
+                         stpprot_message_packet_t *packet, uint8_t *data);
 
 #endif /* ifndef STD_STUPID_PROTOCOL */
