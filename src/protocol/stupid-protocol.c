@@ -8,8 +8,6 @@
 //
 
 #include "monocypher.h"
-#include "stupid.h"
-#include <stdio.h>
 
 int stpprot_packet_init(stpprot_message_packet_t *packet) {
   if (packet == NULL) {
