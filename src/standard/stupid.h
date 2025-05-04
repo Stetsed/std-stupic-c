@@ -95,44 +95,121 @@ int stupid_char_int(char *input);
  * - 0 Integer was successfully converted
  * - -1 Pointer was NULL or length of buffer was less than (-)digits+1
  */
-int stupid_int_char(char *buffer, int len, int input);
+int stupid_int_char(char *buffer, int len, int src);
 
-// Convert a null delimited string to either all uppercase charachters or lower
-// case charachters.
-void stupid_str_lowercase(char *buffer);
-void stupid_str_uppercase(char *buffer);
+/**
+ * Takes in a pointer to a null terminated character array, and converts all
+ * letters to lowercase
+ *
+ * Input:
+ * - Pointer to a null terminated character array
+ *
+ * Returns:
+ * - 0 Integer was successfully converted
+ * - -1 Pointer was NULL
+ */
+int stupid_str_lowercase(char *buffer);
 
-// Compares 2 strings, returns EXPECTED_ERROR if they don't, otherwise returns 0
-int stupid_strcmp(char *string, char *string2);
-// Compares 2 strings, returns EXPECTED_ERROR if they don't, otherwise returns
-// 0. Accepts another argument which is a string for the charachters to ignore
-// inside of the string.
-int stupid_strcmp_ignorec(char *string, char *string2, char *chartoign);
+/**
+ * Takes in a pointer to a null terminated character array, and converts all
+ * letters to uppercase
+ *
+ * Input:
+ * - Pointer to a null terminated character array
+ *
+ * Returns:
+ * - 0 Integer was successfully converted
+ * - -1 Pointer was NULL
+ */
+int stupid_str_uppercase(char *buffer);
 
-// Function takes in a value from ERRNO, and returns the error printed out,
-// and exits the program.
-void stupid_handle_errno(int error);
+/**
+ * Takes in 2 pointers to null terminated character arrays and compares them to
+ * see if they are the same.
+ *
+ * Input:
+ * - Pointer to a null terminated character array
+ * - Pointer to a null terminated character array
+ *
+ * Returns:
+ * - 0 Contents of arrays match
+ * - -1 Pointer was NULL
+ * - -2 Contents of array did not match
+ */
+int stupid_strcmp(char *buffer, char *compare);
 
-// Function that takes in 2 arrays, and copies one to the other.
-void stupid_strcpy(char *buffer, char *input);
+/**
+ * Takes in a pointer to a null terminated character and copies from the
+ * it to the destination buffer
+ *
+ * Input:
+ * - Pointer to the destination buffer
+ * - Pointer to a null-terminated character array as the source buffer
+ *
+ * Returns:
+ * - 0 Copy was successful
+ * - -1 Pointer was NULL
+ */
+int stupid_strcpy(char *buffer, char *src);
 
-// Function that takes in 2 arrays, and copies 1 from the other up to a specific
-// amount of charachters.
-void stupid_strncpy(char *buffer, char *input, int amount);
+/**
+ * Takes in a pointer to a null terminated character and copies from the
+ * it to the destination buffer, with the amount of bytes being copied being set
+ * with size, and adding a null terminator at the end.
+ *
+ * Input:
+ * - Pointer to the destination buffer
+ * - Pointer to a character array with a length of < size
+ * - Int that is the amount of characters to be copied
+ *
+ * Returns:
+ * - 0 Copy was successful
+ * - -1 Pointer was NULL
+ */
+int stupid_strncpy(char *buffer, char *src, int size);
 
-// Takes in the sum of a set of values, and the amount of values summed, and
-// calculates the average of these functions
+/**
+ * Takes in a sum of a set of values, and an amount of elements that where
+ * summed up.
+ *
+ * Input:
+ * - Float of a sum of the values
+ * - Int of the amount of elements that where summed
+ * Returns:
+ * - Float value of the calculated average
+ */
 float stupid_average(float sum, int count);
 
-// Takes in 2 strings, the first is the string itself, and the second is a
-// substring that will be looked for inside of string. If it's found it will
-// return the index where the sub-string starts.
+/**
+ * Takes in 2 null-terminated character arrays, and will look for the second
+ * character array in the first to find a sub string
+ *
+ * Input:
+ * - Pointer to a null-terminated character array that is searched through
+ * - Pointer to a null-terminated character array that is looked for in the
+ * first Returns:
+ * - 0 <= Index where the sub string starts
+ * - -1 Pointer was NULL
+ * - -2 Sub string was not found inside of string
+ */
 int stupid_find_substring(char *string, char *substring);
 
-// Function takes in a buffer of chars, and a buffer of bytes, and will print
-// them in hexadecimal form to the output buffer. It requires the buffer to be
-// atleast 2x+1 the size of the input bytes.
-int stupid_bytes_to_hex(char *output, unsigned int outssz, uint8_t *input,
+/**
+ * Takes in a character array, and an array of bytes, it then converts these
+ * bytes into there hexadecimal representation and puts them into the character
+ * buffer with a null-terminator at the end
+ *
+ * Input:
+ * - Pointer to a character array that at least has a size of 2*(Bytes)+1
+ * - Int with the size of the buffer to be copied into
+ * - Pointer to an array of bytes
+ * - Int with the amount of bytes that should be converted from the input
+ * first
+ * Returns:
+ * - 0 Conversion was successful
+ * - -1 Pointer was NULL or size of output buffer is too small
+ */
+int stupid_bytes_to_hex(char *buffer, unsigned int outssz, uint8_t *input,
                         unsigned int insz);
 
 #endif /* ifndef STD_STUPID_STANDARD */

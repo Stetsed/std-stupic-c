@@ -64,20 +64,20 @@ int stupid_char_int(char *input) {
   return returning;
 }
 
-int stupid_int_char(char *buffer, int len, int input) {
+int stupid_int_char(char *buffer, int len, int src) {
   if (buffer == NULL) {
     return -1;
   }
   bool negative = false;
   int digits = 1;
-  if (input < 0) {
+  if (src < 0) {
     *buffer = '-';
     buffer++;
-    input = stupid_abs(input);
+    src = stupid_abs(src);
     negative = true;
   }
   for (int i = 10; true; i *= 10) {
-    if (input / i > 0) {
+    if (src / i > 0) {
       digits++;
       continue;
     } else {
@@ -89,114 +89,84 @@ int stupid_int_char(char *buffer, int len, int input) {
   }
 
   for (int i = 0; i < digits; i++) {
-    char charachter_gotten = (input / stupid_power(10, digits - i - 1)) + '0';
+    char charachter_gotten = (src / stupid_power(10, digits - i - 1)) + '0';
     buffer[i] = charachter_gotten;
-    input %= stupid_power(10, digits - i - 1);
+    src %= stupid_power(10, digits - i - 1);
   }
 
   buffer[digits + 1] = 0;
   return 0;
 }
 
-void stupid_strcpy(char *buffer, char *input) {
-  int i = 0;
-  for (; input[i]; i++) {
-    buffer[i] = input[i];
+int stupid_str_lowercase(char *buffer) {
+  if (buffer == NULL) {
+    return -1;
   }
-
-  buffer[i + 1] = 0;
-}
-
-void stupid_strncpy(char *buffer, char *input, int amount) {
-  int i = 0;
-  for (; input[i] && i < amount; i++) {
-    buffer[i] = input[i];
-  }
-
-  buffer[i + 1] = 0;
-}
-
-int stupid_totally_safe_strcpy(char *buffer, int bufflen, char *input) {
-  int i = 0;
-  for (; input[i]; i++) {
-    if (i >= bufflen) {
-      return -1;
-    }
-    buffer[i] = input[i];
-  }
-
-  buffer[i + 1] = 0;
-  return 0;
-}
-
-int stupid_strcmp(char *string, char *string2) {
-  int string_length = stupid_strlen(string);
-  int string2_length = stupid_strlen(string2);
-
-  if (string_length != string2_length) {
-    return EXPECTED_ERROR;
-  } else {
-    for (int i = 0; i < string_length; i++) {
-      if (string[i] != string2[i]) {
-        return EXPECTED_ERROR;
-      }
-    }
-  }
-  return 0;
-}
-
-int stupid_strcmp_ignorec(char *string, char *string2, char *chartoign) {
-  int string_length = stupid_strlen(string);
-  int string2_length = stupid_strlen(string2);
-  int chartoign_length = stupid_strlen(chartoign);
-  int offset = 0;
-  bool done = false;
-
-  for (int i = 0; i < string_length - offset && !done; i++) {
-    if (string[i + offset] != string2[i]) {
-      bool ignore = false;
-      for (int b = 0; b < chartoign_length; b++) {
-        if (string[i + offset] == chartoign[b]) {
-          ignore = true;
-          if (i >= string2_length) {
-            done = true;
-            break;
-          } else {
-            i--;
-            offset++;
-            break;
-          }
-        }
-      }
-      if (!ignore) {
-        return EXPECTED_ERROR;
-      }
-    }
-  }
-  if (offset >= string_length) {
-    return EXPECTED_ERROR;
-  };
-  return 0;
-}
-
-void stupid_str_lowercase(char *buffer) {
   int i = 0;
   for (; buffer[i]; i++) {
     if (buffer[i] > 64 && buffer[i] < 91) {
       buffer[i] += 32;
     }
   }
-  buffer[i + 1] = 0;
+  return 0;
 }
 
-void stupid_str_uppercase(char *buffer) {
+int stupid_str_uppercase(char *buffer) {
+  if (buffer == NULL) {
+    return -1;
+  }
   int i = 0;
   for (; buffer[i]; i++) {
     if (buffer[i] > 96 && buffer[i] < 123) {
       buffer[i] -= 32;
     }
   }
+  return 0;
+}
+
+int stupid_strcmp(char *buffer, char *compare) {
+  if (buffer == NULL || compare == NULL) {
+    return -1;
+  }
+  int buffer_length = stupid_strlen(buffer);
+  int compare_length = stupid_strlen(compare);
+
+  if (buffer_length != compare_length) {
+    return -2;
+  } else {
+    for (int i = 0; i < buffer_length; i++) {
+      if (buffer[i] != compare[i]) {
+        return -2;
+      }
+    }
+  }
+  return 0;
+}
+
+int stupid_strcpy(char *buffer, char *input) {
+  if (buffer == NULL || input == NULL) {
+    return -1;
+  }
+  int i = 0;
+  for (; input[i]; i++) {
+    buffer[i] = input[i];
+  }
+
   buffer[i + 1] = 0;
+  return 0;
+}
+
+int stupid_strncpy(char *buffer, char *input, int size) {
+  if (buffer == NULL || input == NULL) {
+    return -1;
+  }
+  int i = 0;
+  for (; input[i] && i < size; i++) {
+    buffer[i] = input[i];
+  }
+
+  buffer[i + 1] = 0;
+  return 0;
 }
 
 float stupid_average(float sum, int count) {
@@ -205,11 +175,14 @@ float stupid_average(float sum, int count) {
 }
 
 int stupid_find_substring(char *string, char *substring) {
+  if (string == NULL || substring == NULL) {
+    return -1;
+  }
   int string_length = stupid_strlen(string);
   int substring_length = stupid_strlen(substring);
 
   if (!string_length || !substring_length) {
-    return -1;
+    return -2;
   }
   for (int i = 0; i <= string_length - substring_length; i++) {
     int matches = 0;
@@ -225,18 +198,17 @@ int stupid_find_substring(char *string, char *substring) {
       }
     }
   }
-  return -1;
+  return -2;
 }
 
 int stupid_bytes_to_hex(char *output, unsigned int outssz, uint8_t *input,
                         unsigned int insz) {
+  if (output == NULL || input == NULL || (insz * 2 + 1 > outssz)) {
+    return -1;
+  }
   const char hex[] = "0123456789abcdef";
   char *poutput = output;
   uint8_t *pinput = input;
-
-  if (insz * 2 + 1 > outssz) {
-    return CATASTROPHIC_ERROR;
-  }
 
   for (; pinput < input + insz; poutput += 2, pinput++) {
     poutput[0] = hex[(*pinput >> 4) & 0xF];
@@ -244,5 +216,5 @@ int stupid_bytes_to_hex(char *output, unsigned int outssz, uint8_t *input,
   }
   poutput[0] = 0;
 
-  return NO_ERROR;
+  return 0;
 }
