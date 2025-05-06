@@ -1,4 +1,3 @@
-#include <sys/socket.h>
 #if defined(unix) || defined(__unix__) || defined(__unix)
 /*
  * Copyright (c) Quinn Hooft (Stetsed)

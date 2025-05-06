@@ -87,6 +87,8 @@ Mkfile.old
 dkms.conf
 compile_commands.json
 
+build/*
+
 # Rust
 
 */target/*
