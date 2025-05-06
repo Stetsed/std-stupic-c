@@ -17,7 +17,7 @@ TEST_OUTPUT := build/test.out
 CCOMPILER_FLAGS := -Wno-unused-value
 
 LANG_ARGS := -x c -std=c99
-WARNING_ARGS := -pedantic-errors -Wall -Wextra -Wno-unused-parameter
+WARNING_ARGS := -pedantic-errors -Werror -Wall -Wextra -Wno-unused-parameter
 RELEASE_ARGS := -O3 -Wl,--gc-sections
 
 CPPCHECK_ARGS := -q --check-level=exhaustive --std=c99 --platform=unix32

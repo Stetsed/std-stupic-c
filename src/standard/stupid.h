@@ -19,13 +19,15 @@
 #define EXPECTED_ERROR -2
 #define IGNORE_ERROR -3
 
-typedef uint8_t bool;
-#define true 1
-#define false 0
-
 #define STDIN 0
 #define STDOUT 1
 #define STDERROR 2
+
+#ifndef bool
+typedef uint8_t bool;
+#define true 1
+#define false 0
+#endif
 
 #ifndef NULL
 #define NULL ((void *)0)
