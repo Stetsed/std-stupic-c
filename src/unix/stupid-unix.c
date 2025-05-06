@@ -1,3 +1,4 @@
+#include <sys/socket.h>
 #if defined(unix) || defined(__unix__) || defined(__unix)
 /*
  * Copyright (c) Quinn Hooft (Stetsed)
@@ -11,6 +12,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/socket.h>
 
 int stupid_print(const char *output) {
   if (output == NULL) {
@@ -49,11 +51,18 @@ int stpunix_instance_init(stpunix_tcp_instance_s *instance) {
   if (instance == NULL) {
     return -1;
   }
-  instance->poll_descriptor.fd = 0;
-  instance->poll_descriptor.events = 0;
-  instance->poll_descriptor.revents = 0;
+  int socketfd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 
-  instance->socketfd = 0;
+  if (socketfd < 0) {
+    return -1;
+  }
+  int value_one = 1;
+  setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &value_one, sizeof(value_one));
+
+  instance->poll_descriptor.fd = socketfd;
+  instance->poll_descriptor.events = POLLIN;
+
+  instance->socketfd = socketfd;
   instance->status = SocketInactive;
   return 0;
 }
@@ -69,9 +78,11 @@ int stpunix_bind_tcp_serv(stpunix_tcp_instance_s *server, uint32_t address,
   address_info.sin_family = AF_INET;
   if (bind(server->socketfd, (struct sockaddr *)&address_info,
            sizeof(address_info)) < 0) {
+    printf("Error while atempting to bind. %d\n", errno);
     return -2;
   };
   if (listen(server->socketfd, 16)) {
+    printf("Error while attempting to listen");
     return -2;
   }
   server->status = SocketActive;
