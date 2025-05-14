@@ -10,9 +10,9 @@ TEST_DIRS := $(shell find $(SRC_DIRECTORY) test -type d)
 TEST_SOURCE_FILES := $(shell find $(SRC_DIRECTORY) test -name "*.c")
 TEST_CORRECT_DIRS := $(addprefix -I, $(TEST_DIRS))
 
-OUTPUT := main.o
+BUILD_DIRECTORY := build/
 
-TEST_OUTPUT := build/test.out
+TEST_OUTPUT := $(BUILD_DIRECTORY)test.out
 
 CCOMPILER_FLAGS := -Wno-unused-value
 
@@ -27,7 +27,12 @@ VALGRIND_ARGS := -q --leak-check=full --show-leak-kinds=all --track-origins=yes
 
 debug: 
 	@echo "Compiling the program with debug parameters"
-	$(CCOMPILER) $(CCOMPILER_FLAGS) $(CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) -g main.c $(SOURCE_FILES) -o $(OUTPUT) $(EXTRA_ARGS)
+	$(CCOMPILER) $(CCOMPILER_FLAGS) $(CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) -g main.c $(SOURCE_FILES) -o $(BUILD_DIRECTORY)debug.out $(EXTRA_ARGS)
+
+release: 
+	@echo "Compiling the program with release parameters"
+	$(CCOMPILER) $(CCOMPILER_FLAGS) $(CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) $(RELEASE_ARGS) main.c $(SOURCE_FILES) -o $(BUILD_DIRECTORY)release.out $(EXTRA_ARGS)
+
 
 test:
 	@echo "Running tests for std-stupid-c with unity"
@@ -46,8 +51,3 @@ test-release:
 	@$(CCOMPILER) $(CCOMPILER_FLAGS) $(TEST_CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) $(RELEASE_ARGS) $(TEST_SOURCE_FILES) -o $(TEST_OUTPUT) $(EXTRA_ARGS)
 	@echo "Running the tests with valgrind"
 	@valgrind $(VALGRIND_ARGS) $(TEST_OUTPUT)
-
-release: 
-	@echo "Compiling the program with release parameters"
-	$(CCOMPILER) $(CCOMPILER_FLAGS) $(CORRECT_DIRS) $(WARNING_ARGS) $(LANG_ARGS) $(RELEASE_ARGS) main.c $(SOURCE_FILES) -o $(OUTPUT) $(EXTRA_ARGS)
-
