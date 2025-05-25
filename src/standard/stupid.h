@@ -23,10 +23,13 @@
 #define STDOUT 1
 #define STDERROR 2
 
+// Make sure to not define it at all if we are using CPP
+#ifndef __cplusplus
 #ifndef bool
 typedef uint8_t bool;
 #define true 1
 #define false 0
+#endif
 #endif
 
 #ifndef NULL
