@@ -8,6 +8,7 @@
 #include "stupid-unix.h"
 //
 
+#include <asm-generic/socket.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,7 +57,8 @@ int stpunix_instance_init(stpunix_tcp_instance_s *instance) {
     return -1;
   }
   int value_one = 1;
-  setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &value_one, sizeof(value_one));
+  setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &value_one,
+             sizeof(value_one));
 
   instance->poll_descriptor.fd = socketfd;
   instance->poll_descriptor.events = POLLIN;
