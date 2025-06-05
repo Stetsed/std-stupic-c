@@ -130,6 +130,7 @@ int stpunix_connect_tcp_client(stpunix_tcp_instance_s *client,
   connection->clientinfo = addr;
   connection->clientlen = sizeof(addr);
   connection->socketfd = client->socketfd;
+  connection->status = SocketActive;
 
   return 0;
 }
