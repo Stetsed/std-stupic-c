@@ -144,11 +144,11 @@ void test_stupid_average(void) {
   int test_int_1 = 10 + 10 + 10 + 10 + 20;
   float average_1 = stupid_average(test_int_1, 5);
 
-  // Average should be 15.8, (10+10+29+10+20)/5=12
+  // Average should be 15.8, (10+10+29+10+20)/5=15.8
   int test_int_2 = 10 + 10 + 29 + 10 + 20;
   float average_2 = stupid_average(test_int_2, 5);
 
-  // Average should be 20.2, (10+32+29+10+20)/5=12
+  // Average should be 20.2, (10+32+29+10+20)/5=20.2
   int test_int_3 = 10 + 32 + 29 + 10 + 20;
   float average_3 = stupid_average(test_int_3, 5);
 
